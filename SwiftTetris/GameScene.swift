@@ -282,41 +282,41 @@ class GameScene: SKScene {
         let screenWidth = self.size.width
         let screenHeight = self.size.height
         
-        // Score UI - positioned above the board with proper spacing
+        // Score, Level, Lines UI - positioned on top left, stacked vertically
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
         scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: -screenWidth/3, y: boardHeight/2 + 80)
-        scoreLabel.horizontalAlignmentMode = .center
+        scoreLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 80)
+        scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
         levelLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         levelLabel.text = "LEVEL: 1"
         levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: 0, y: boardHeight/2 + 80)
-        levelLabel.horizontalAlignmentMode = .center
+        levelLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 50)
+        levelLabel.horizontalAlignmentMode = .left
         uiNode.addChild(levelLabel)
         
         linesLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         linesLabel.text = "LINES: 0"
         linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: screenWidth/3, y: boardHeight/2 + 80)
-        linesLabel.horizontalAlignmentMode = .center
+        linesLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 20)
+        linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
-        // Next piece preview - positioned above the board, right side
+        // Next piece preview - positioned on top right, above the board
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
         nextLabel.fontSize = 14
         nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 40)
+        nextLabel.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 80)
         nextLabel.horizontalAlignmentMode = .center
         uiNode.addChild(nextLabel)
         
-        nextPieceNode.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 80)
+        nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
         
         // Add pause button - positioned at the top center
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -336,9 +336,9 @@ class GameScene: SKScene {
         let screenHeight = self.size.height
         let boardHeight = CGFloat(rows) * blockSize
         
-        // D-pad on bottom left
-        let dpadSize: CGFloat = 60
-        let dpadCenter = CGPoint(x: -screenWidth/2 + 80, y: -boardHeight/2 - 120)
+        // D-pad on bottom left - positioned higher and more to the right to be visible
+        let dpadSize: CGFloat = 50
+        let dpadCenter = CGPoint(x: -screenWidth/2 + 120, y: -boardHeight/2 + 60)
         
         // Left button
         let leftButton = createDpadButton(direction: "left")
@@ -358,18 +358,18 @@ class GameScene: SKScene {
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
-        // A and B buttons on bottom right
-        let buttonCenter = CGPoint(x: screenWidth/2 - 80, y: -boardHeight/2 - 120)
+        // A and B buttons on bottom right - positioned to be both visible
+        let buttonCenter = CGPoint(x: screenWidth/2 - 100, y: -boardHeight/2 + 60)
         
         // A button (rotate clockwise)
         let aButton = createActionButton(letter: "A")
-        aButton.position = CGPoint(x: buttonCenter.x, y: buttonCenter.y + 30)
+        aButton.position = CGPoint(x: buttonCenter.x + 40, y: buttonCenter.y)
         aButton.name = "aButton"
         uiNode.addChild(aButton)
         
         // B button (rotate counter-clockwise)  
         let bButton = createActionButton(letter: "B")
-        bButton.position = CGPoint(x: buttonCenter.x - 60, y: buttonCenter.y - 30)
+        bButton.position = CGPoint(x: buttonCenter.x - 40, y: buttonCenter.y - 50)
         bButton.name = "bButton"
         uiNode.addChild(bButton)
     }
@@ -378,7 +378,7 @@ class GameScene: SKScene {
         let buttonNode = SKNode()
         
         // Black square with white outline
-        let size: CGFloat = 50
+        let size: CGFloat = 40
         let button = SKShapeNode(rect: CGRect(x: -size/2, y: -size/2, width: size, height: size))
         button.fillColor = .black
         button.strokeColor = .white
@@ -387,7 +387,7 @@ class GameScene: SKScene {
         
         // Arrow or direction indicator
         let arrow = SKLabelNode(fontNamed: "Helvetica-Bold")
-        arrow.fontSize = 24
+        arrow.fontSize = 18
         arrow.fontColor = .white
         arrow.verticalAlignmentMode = .center
         arrow.horizontalAlignmentMode = .center
@@ -407,7 +407,7 @@ class GameScene: SKScene {
         let buttonNode = SKNode()
         
         // White square background
-        let squareSize: CGFloat = 60
+        let squareSize: CGFloat = 50
         let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize))
         square.fillColor = .white
         square.strokeColor = .white
@@ -415,7 +415,7 @@ class GameScene: SKScene {
         buttonNode.addChild(square)
         
         // Red circular button
-        let circleRadius: CGFloat = 22
+        let circleRadius: CGFloat = 18
         let circle = SKShapeNode(circleOfRadius: circleRadius)
         circle.fillColor = .red
         circle.strokeColor = SKColor(red: 0.5, green: 0.0, blue: 0.0, alpha: 1.0)
@@ -425,7 +425,7 @@ class GameScene: SKScene {
         // White letter
         let label = SKLabelNode(fontNamed: "Helvetica-Bold")
         label.text = letter
-        label.fontSize = 20
+        label.fontSize = 16
         label.fontColor = .white
         label.verticalAlignmentMode = .center
         label.horizontalAlignmentMode = .center
