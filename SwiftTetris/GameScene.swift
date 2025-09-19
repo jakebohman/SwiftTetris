@@ -278,48 +278,52 @@ class GameScene: SKScene {
         border.fillColor = .clear
         boardNode.addChild(border)
         
-        // Score UI
+        // Position UI elements on the left side of the board or at the top/bottom
+        let screenWidth = self.size.width
+        let uiX = -screenWidth/2 + 20  // Left side with margin
+        
+        // Score UI - positioned on the left side
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
-        scoreLabel.fontSize = 20
+        scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: boardWidth/2 + 80, y: boardHeight/2 - 40)
+        scoreLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 40)
         scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
         levelLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         levelLabel.text = "LEVEL: 1"
-        levelLabel.fontSize = 20
+        levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: boardWidth/2 + 80, y: boardHeight/2 - 80)
+        levelLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 70)
         levelLabel.horizontalAlignmentMode = .left
         uiNode.addChild(levelLabel)
         
         linesLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         linesLabel.text = "LINES: 0"
-        linesLabel.fontSize = 20
+        linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: boardWidth/2 + 80, y: boardHeight/2 - 120)
+        linesLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 100)
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
-        // Next piece preview
+        // Next piece preview - positioned on the left side below other stats
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
-        nextLabel.fontSize = 16
+        nextLabel.fontSize = 14
         nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: boardWidth/2 + 80, y: 0)
+        nextLabel.position = CGPoint(x: uiX, y: 50)
         nextLabel.horizontalAlignmentMode = .left
         uiNode.addChild(nextLabel)
         
-        nextPieceNode.position = CGPoint(x: boardWidth/2 + 120, y: -40)
+        nextPieceNode.position = CGPoint(x: uiX + 60, y: 20)
         
-        // Add pause button
+        // Add pause button - positioned at the top center
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
         pauseButton.text = "||"
-        pauseButton.fontSize = 24
+        pauseButton.fontSize = 20
         pauseButton.fontColor = .white
-        pauseButton.position = CGPoint(x: boardWidth/2 + 80, y: boardHeight/2 - 200)
+        pauseButton.position = CGPoint(x: 0, y: boardHeight/2 + 40)
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
     }
@@ -655,7 +659,7 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         return CGPoint(
             x: CGFloat(x) * blockSize - boardWidth/2 + blockSize/2,
-            y: CGFloat(rows - 1 - y) * blockSize - boardHeight/2 + blockSize/2
+            y: CGFloat(y) * blockSize - boardHeight/2 + blockSize/2
         )
     }
     
@@ -757,8 +761,8 @@ class GameScene: SKScene {
         let nextTetromino = makeTetromino(kind: nextKind)
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
-                                  size: CGSize(width: blockSize/2, height: blockSize/2))
-            tile.position = CGPoint(x: CGFloat(p.x) * blockSize/2, y: CGFloat(-p.y) * blockSize/2)
+                                  size: CGSize(width: blockSize/3, height: blockSize/3))
+            tile.position = CGPoint(x: CGFloat(p.x) * blockSize/3, y: CGFloat(p.y) * blockSize/3)
             nextPieceNode.addChild(tile)
         }
     }
