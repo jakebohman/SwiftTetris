@@ -46,7 +46,7 @@ struct Tetromino {
     var position: Point  // position of the tetromino origin on the board
 
     var blocks: [Point] {
-        rotations[rotationIndex]
+        return rotations[rotationIndex]
     }
 
     mutating func rotateClockwise() { rotationIndex = (rotationIndex + 1) % rotations.count }
