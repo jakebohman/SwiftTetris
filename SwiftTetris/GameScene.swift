@@ -278,52 +278,160 @@ class GameScene: SKScene {
         border.fillColor = .clear
         boardNode.addChild(border)
         
-        // Position UI elements above and below the game area
+        // Position UI elements with proper spacing
+        let screenWidth = self.size.width
+        let screenHeight = self.size.height
         
-        // Score UI - positioned above the board
+        // Score UI - positioned above the board with proper spacing
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
-        scoreLabel.fontSize = 18
+        scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: -80, y: boardHeight/2 + 60)
-        scoreLabel.horizontalAlignmentMode = .left
+        scoreLabel.position = CGPoint(x: -screenWidth/3, y: boardHeight/2 + 80)
+        scoreLabel.horizontalAlignmentMode = .center
         uiNode.addChild(scoreLabel)
         
         levelLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         levelLabel.text = "LEVEL: 1"
-        levelLabel.fontSize = 18
+        levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: 0, y: boardHeight/2 + 60)
+        levelLabel.position = CGPoint(x: 0, y: boardHeight/2 + 80)
         levelLabel.horizontalAlignmentMode = .center
         uiNode.addChild(levelLabel)
         
         linesLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         linesLabel.text = "LINES: 0"
-        linesLabel.fontSize = 18
+        linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: 80, y: boardHeight/2 + 60)
-        linesLabel.horizontalAlignmentMode = .right
+        linesLabel.position = CGPoint(x: screenWidth/3, y: boardHeight/2 + 80)
+        linesLabel.horizontalAlignmentMode = .center
         uiNode.addChild(linesLabel)
         
-        // Next piece preview - positioned below the board
+        // Next piece preview - positioned above the board, right side
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
-        nextLabel.fontSize = 16
+        nextLabel.fontSize = 14
         nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: 0, y: -boardHeight/2 - 60)
+        nextLabel.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 40)
         nextLabel.horizontalAlignmentMode = .center
         uiNode.addChild(nextLabel)
         
-        nextPieceNode.position = CGPoint(x: 0, y: -boardHeight/2 - 100)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 80)
         
-        // Add pause button - positioned at the top right, above the board
+        // Add pause button - positioned at the top center
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
-        pauseButton.text = "||"
-        pauseButton.fontSize = 24
+        pauseButton.text = "PAUSE"
+        pauseButton.fontSize = 16
         pauseButton.fontColor = .yellow
-        pauseButton.position = CGPoint(x: boardWidth/2 - 20, y: boardHeight/2 + 100)
+        pauseButton.position = CGPoint(x: 0, y: boardHeight/2 + 120)
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
+        
+        // Add game controls
+        setupGameControls()
+    }
+    
+    func setupGameControls() {
+        let screenWidth = self.size.width
+        let screenHeight = self.size.height
+        let boardHeight = CGFloat(rows) * blockSize
+        
+        // D-pad on bottom left
+        let dpadSize: CGFloat = 60
+        let dpadCenter = CGPoint(x: -screenWidth/2 + 80, y: -boardHeight/2 - 120)
+        
+        // Left button
+        let leftButton = createDpadButton(direction: "left")
+        leftButton.position = CGPoint(x: dpadCenter.x - dpadSize, y: dpadCenter.y)
+        leftButton.name = "leftButton"
+        uiNode.addChild(leftButton)
+        
+        // Right button  
+        let rightButton = createDpadButton(direction: "right")
+        rightButton.position = CGPoint(x: dpadCenter.x + dpadSize, y: dpadCenter.y)
+        rightButton.name = "rightButton"
+        uiNode.addChild(rightButton)
+        
+        // Down button
+        let downButton = createDpadButton(direction: "down")
+        downButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y - dpadSize)
+        downButton.name = "downButton"
+        uiNode.addChild(downButton)
+        
+        // A and B buttons on bottom right
+        let buttonCenter = CGPoint(x: screenWidth/2 - 80, y: -boardHeight/2 - 120)
+        
+        // A button (rotate clockwise)
+        let aButton = createActionButton(letter: "A")
+        aButton.position = CGPoint(x: buttonCenter.x, y: buttonCenter.y + 30)
+        aButton.name = "aButton"
+        uiNode.addChild(aButton)
+        
+        // B button (rotate counter-clockwise)  
+        let bButton = createActionButton(letter: "B")
+        bButton.position = CGPoint(x: buttonCenter.x - 60, y: buttonCenter.y - 30)
+        bButton.name = "bButton"
+        uiNode.addChild(bButton)
+    }
+    
+    func createDpadButton(direction: String) -> SKNode {
+        let buttonNode = SKNode()
+        
+        // Black square with white outline
+        let size: CGFloat = 50
+        let button = SKShapeNode(rect: CGRect(x: -size/2, y: -size/2, width: size, height: size))
+        button.fillColor = .black
+        button.strokeColor = .white
+        button.lineWidth = 2
+        buttonNode.addChild(button)
+        
+        // Arrow or direction indicator
+        let arrow = SKLabelNode(fontNamed: "Helvetica-Bold")
+        arrow.fontSize = 24
+        arrow.fontColor = .white
+        arrow.verticalAlignmentMode = .center
+        arrow.horizontalAlignmentMode = .center
+        
+        switch direction {
+        case "left": arrow.text = "◀"
+        case "right": arrow.text = "▶"
+        case "down": arrow.text = "▼"
+        default: arrow.text = "?"
+        }
+        
+        buttonNode.addChild(arrow)
+        return buttonNode
+    }
+    
+    func createActionButton(letter: String) -> SKNode {
+        let buttonNode = SKNode()
+        
+        // White square background
+        let squareSize: CGFloat = 60
+        let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize))
+        square.fillColor = .white
+        square.strokeColor = .white
+        square.lineWidth = 1
+        buttonNode.addChild(square)
+        
+        // Red circular button
+        let circleRadius: CGFloat = 22
+        let circle = SKShapeNode(circleOfRadius: circleRadius)
+        circle.fillColor = .red
+        circle.strokeColor = .darkRed
+        circle.lineWidth = 2
+        buttonNode.addChild(circle)
+        
+        // White letter
+        let label = SKLabelNode(fontNamed: "Helvetica-Bold")
+        label.text = letter
+        label.fontSize = 20
+        label.fontColor = .white
+        label.verticalAlignmentMode = .center
+        label.horizontalAlignmentMode = .center
+        buttonNode.addChild(label)
+        
+        return buttonNode
     }
     
     func setupSounds() {
@@ -865,6 +973,37 @@ class GameScene: SKScene {
         return false
     }
     
+    func attemptRotateCounterClockwise() -> Bool {
+        guard gameState == .playing else { return false }
+        
+        var rotated = current!
+        rotated.rotateCounter()
+        
+        // Basic wall kick attempts
+        let kickTests = [
+            Point(x: 0, y: 0),   // No kick
+            Point(x: -1, y: 0),  // Left kick
+            Point(x: 1, y: 0),   // Right kick
+            Point(x: 0, y: 1),   // Up kick
+            Point(x: -1, y: 1),  // Left-up kick
+            Point(x: 1, y: 1)    // Right-up kick
+        ]
+        
+        for kick in kickTests {
+            rotated.position.x = current.position.x + kick.x
+            rotated.position.y = current.position.y + kick.y
+            
+            if canPlace(tetromino: rotated) {
+                current = rotated
+                drawCurrentPiece()
+                run(rotateSoundAction)
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     func hardDrop() {
         guard gameState == .playing else { return }
         
@@ -893,10 +1032,9 @@ class GameScene: SKScene {
         case .gameOver:
             restartGame()
         case .playing:
-            // Check if tap is on pause button
-            let pauseButton = uiNode.childNode(withName: "pauseButton")
-            if let button = pauseButton, button.contains(location) {
-                pauseGame()
+            // Check if tap is on any control button
+            if handleControlInput(location) {
+                return
             } else {
                 handleGameTouch(location)
             }
@@ -915,8 +1053,43 @@ class GameScene: SKScene {
         }
     }
     
+    func handleControlInput(_ location: CGPoint) -> Bool {
+        // Check pause button
+        let pauseButton = uiNode.childNode(withName: "pauseButton")
+        if let button = pauseButton, button.contains(location) {
+            pauseGame()
+            return true
+        }
+        
+        // Check D-pad buttons
+        if let leftButton = uiNode.childNode(withName: "leftButton"), leftButton.contains(location) {
+            _ = attemptMove(dx: -1, dy: 0)
+            return true
+        }
+        if let rightButton = uiNode.childNode(withName: "rightButton"), rightButton.contains(location) {
+            _ = attemptMove(dx: 1, dy: 0)
+            return true
+        }
+        if let downButton = uiNode.childNode(withName: "downButton"), downButton.contains(location) {
+            _ = attemptMove(dx: 0, dy: -1)
+            return true
+        }
+        
+        // Check action buttons
+        if let aButton = uiNode.childNode(withName: "aButton"), aButton.contains(location) {
+            _ = attemptRotate()
+            return true
+        }
+        if let bButton = uiNode.childNode(withName: "bButton"), bButton.contains(location) {
+            _ = attemptRotateCounterClockwise()
+            return true
+        }
+        
+        return false
+    }
+    
     func handleGameTouch(_ location: CGPoint) {
-        // Quick tap for rotation
+        // Quick tap for rotation (fallback if not using buttons)
         if abs(location.x - touchStartLocation.x) < 20 && abs(location.y - touchStartLocation.y) < 20 {
             // This will be handled in touchesEnded if it's a quick tap
             return
