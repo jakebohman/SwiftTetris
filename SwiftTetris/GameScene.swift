@@ -6,7 +6,7 @@ import AVFoundation
 let columns = 10
 let rows = 20
 let blockSize: CGFloat = 32.0
-let spawnRow = 19  // Top row for spawning
+let spawnRow = 21  // Spawn above visible area
 
 // Game States
 enum GameState {
@@ -278,52 +278,50 @@ class GameScene: SKScene {
         border.fillColor = .clear
         boardNode.addChild(border)
         
-        // Position UI elements on the left side of the board or at the top/bottom
-        let screenWidth = self.size.width
-        let uiX = -screenWidth/2 + 20  // Left side with margin
+        // Position UI elements above and below the game area
         
-        // Score UI - positioned on the left side
+        // Score UI - positioned above the board
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
-        scoreLabel.fontSize = 16
+        scoreLabel.fontSize = 18
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 40)
+        scoreLabel.position = CGPoint(x: -80, y: boardHeight/2 + 60)
         scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
         levelLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         levelLabel.text = "LEVEL: 1"
-        levelLabel.fontSize = 16
+        levelLabel.fontSize = 18
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 70)
-        levelLabel.horizontalAlignmentMode = .left
+        levelLabel.position = CGPoint(x: 0, y: boardHeight/2 + 60)
+        levelLabel.horizontalAlignmentMode = .center
         uiNode.addChild(levelLabel)
         
         linesLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         linesLabel.text = "LINES: 0"
-        linesLabel.fontSize = 16
+        linesLabel.fontSize = 18
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: uiX, y: boardHeight/2 - 100)
-        linesLabel.horizontalAlignmentMode = .left
+        linesLabel.position = CGPoint(x: 80, y: boardHeight/2 + 60)
+        linesLabel.horizontalAlignmentMode = .right
         uiNode.addChild(linesLabel)
         
-        // Next piece preview - positioned on the left side below other stats
+        // Next piece preview - positioned below the board
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
-        nextLabel.fontSize = 14
+        nextLabel.fontSize = 16
         nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: uiX, y: 50)
-        nextLabel.horizontalAlignmentMode = .left
+        nextLabel.position = CGPoint(x: 0, y: -boardHeight/2 - 60)
+        nextLabel.horizontalAlignmentMode = .center
         uiNode.addChild(nextLabel)
         
-        nextPieceNode.position = CGPoint(x: uiX + 60, y: 20)
+        nextPieceNode.position = CGPoint(x: 0, y: -boardHeight/2 - 100)
         
-        // Add pause button - positioned at the top center
+        // Add pause button - positioned at the top right, above the board
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
         pauseButton.text = "||"
-        pauseButton.fontSize = 20
-        pauseButton.fontColor = .white
-        pauseButton.position = CGPoint(x: 0, y: boardHeight/2 + 40)
+        pauseButton.fontSize = 24
+        pauseButton.fontColor = .yellow
+        pauseButton.position = CGPoint(x: boardWidth/2 - 20, y: boardHeight/2 + 100)
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
     }
@@ -422,19 +420,49 @@ class GameScene: SKScene {
         lockTimer = 0
         
         if !canPlace(tetromino: current) {
-            gameOver()
-            return
+            // Check if there are blocks in the top rows (game over condition)
+            if isGameOverCondition() {
+                gameOver()
+                return
+            } else {
+                // Try spawning higher up
+                current.position.y += 2
+                if !canPlace(tetromino: current) {
+                    gameOver()
+                    return
+                }
+            }
         }
         
         updateNextPiece()
+    }
+    
+    func isGameOverCondition() -> Bool {
+        // Game over if there are blocks in the top 2 rows of the visible area
+        for x in 0..<columns {
+            for y in (rows-2)..<rows {
+                if board.grid[x][y] != .none {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     func canPlace(tetromino: Tetromino) -> Bool {
         for p in tetromino.blocks {
             let x = tetromino.position.x + p.x
             let y = tetromino.position.y + p.y
-            if !(x >= 0 && x < columns && y >= 0 && y < rows) { return false }
-            if board.grid[x][y] != .none { return false }
+            
+            // Check horizontal bounds
+            if x < 0 || x >= columns { return false }
+            
+            // Check bottom bound (can't go below y = 0)
+            if y < 0 { return false }
+            
+            // Allow pieces to extend above the visible area (y >= rows)
+            // Only check for collisions within the visible game board
+            if y < rows && board.grid[x][y] != .none { return false }
         }
         return true
     }
