@@ -418,7 +418,7 @@ class GameScene: SKScene {
         let circleRadius: CGFloat = 22
         let circle = SKShapeNode(circleOfRadius: circleRadius)
         circle.fillColor = .red
-        circle.strokeColor = .darkRed
+        circle.strokeColor = SKColor(red: 0.5, green: 0.0, blue: 0.0, alpha: 1.0)
         circle.lineWidth = 2
         buttonNode.addChild(circle)
         
