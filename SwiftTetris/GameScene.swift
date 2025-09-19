@@ -223,6 +223,23 @@ class GameScene: SKScene {
     private var lineClearSoundAction: SKAction!
     private var gameOverSoundAction: SKAction!
     private var backgroundMusicPlayer: AVAudioPlayer?
+    
+    // MARK: - Helper Functions
+    
+    func blendColor(_ color: SKColor, with blendColor: SKColor, fraction: CGFloat) -> SKColor {
+        var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
+        var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
+        
+        color.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+        blendColor.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+        
+        return SKColor(
+            red: r1 + (r2 - r1) * fraction,
+            green: g1 + (g2 - g1) * fraction,
+            blue: b1 + (b2 - b1) * fraction,
+            alpha: a1
+        )
+    }
 
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
@@ -712,13 +729,13 @@ class GameScene: SKScene {
         let block = SKSpriteNode(color: color, size: CGSize(width: blockSize-2, height: blockSize-2))
         
         // Add top highlight for 3D effect
-        let highlight = SKSpriteNode(color: color.blended(withFraction: 0.3, of: .white),
+        let highlight = SKSpriteNode(color: blendColor(color, with: .white, fraction: 0.3),
                                    size: CGSize(width: blockSize-2, height: 3))
         highlight.position = CGPoint(x: 0, y: (blockSize-2)/2 - 1.5)
         block.addChild(highlight)
         
         // Add side shadow
-        let shadow = SKSpriteNode(color: color.blended(withFraction: 0.3, of: .black),
+        let shadow = SKSpriteNode(color: blendColor(color, with: .black, fraction: 0.3),
                                 size: CGSize(width: 3, height: blockSize-2))
         shadow.position = CGPoint(x: (blockSize-2)/2 - 1.5, y: 0)
         block.addChild(shadow)
