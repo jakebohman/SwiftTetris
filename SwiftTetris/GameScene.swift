@@ -307,16 +307,6 @@ class GameScene: SKScene {
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
-        // Next piece preview - positioned on top right, above the board with box
-        let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
-        nextLabel.text = "NEXT"
-        nextLabel.fontSize = 14
-        nextLabel.fontColor = .white
-        nextLabel.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 80)
-        nextLabel.horizontalAlignmentMode = .center
-        uiNode.addChild(nextLabel)
-        
-        // Next piece box
         // Larger Next piece container to include label and fit 4-wide tetromino
         let nextContainer = SKNode()
         nextContainer.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
