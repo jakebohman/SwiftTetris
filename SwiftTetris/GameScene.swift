@@ -213,6 +213,10 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
+    // Starfield Background
+    private var starfieldNode: SKNode!
+    private var stars: [SKSpriteNode] = []
+    
     // Button auto-repeat functionality
     private var leftButtonPressed = false
     private var rightButtonPressed = false
@@ -257,6 +261,7 @@ class GameScene: SKScene {
         backgroundColor = SKColor.black
         
         setupGameNodes()
+        setupStarfield()
         setupUI()
         setupSounds()
         showMainMenu()
@@ -276,6 +281,40 @@ class GameScene: SKScene {
         nextPieceNode = SKNode()
         nextPieceNode.name = "nextPiece"
         uiNode.addChild(nextPieceNode)
+    }
+    
+    func setupStarfield() {
+        starfieldNode = SKNode()
+        starfieldNode.name = "starfield"
+        starfieldNode.zPosition = -100 // Behind everything
+        addChild(starfieldNode)
+        
+        let screenWidth = self.size.width
+        let screenHeight = self.size.height
+        
+        // Create multiple layers of stars with different sizes and speeds
+        let starCounts = [15, 25, 35] // Small, medium, large star counts
+        let starSizes: [CGFloat] = [1.0, 1.5, 2.0]
+        let starSpeeds: [CGFloat] = [20, 35, 50] // pixels per second
+        let starOpacities: [CGFloat] = [0.3, 0.5, 0.8]
+        
+        for layer in 0..<starCounts.count {
+            for _ in 0..<starCounts[layer] {
+                let star = SKSpriteNode(color: .white, size: CGSize(width: starSizes[layer], height: starSizes[layer]))
+                
+                // Random position across the screen
+                star.position = CGPoint(
+                    x: CGFloat.random(in: -screenWidth/2...screenWidth/2),
+                    y: CGFloat.random(in: -screenHeight/2...screenHeight/2 + 100) // Start some above screen
+                )
+                
+                star.alpha = starOpacities[layer]
+                star.name = "star_\(layer)" // Layer identifier for different speeds
+                
+                starfieldNode.addChild(star)
+                stars.append(star)
+            }
+        }
     }
     
     func setupUI() {
@@ -1560,6 +1599,9 @@ class GameScene: SKScene {
     // MARK: - Game Loop
     
     override func update(_ currentTime: TimeInterval) {
+        // Update starfield animation (always active)
+        updateStarfield()
+        
         guard gameState == .playing else { return }
         
         // Initialize timer
@@ -1586,6 +1628,32 @@ class GameScene: SKScene {
         // Lock delay - give player time to move/rotate before locking
         if lockTimer > 0 && currentTime - lockTimer >= lockDelay {
             lockCurrent()
+        }
+    }
+    
+    func updateStarfield() {
+        let screenHeight = self.size.height
+        let deltaTime: CGFloat = 1.0 / 60.0 // Assume 60 FPS for consistent movement
+        
+        for star in stars {
+            // Get layer from star name to determine speed
+            let layerSpeed: CGFloat
+            if let name = star.name, name.contains("star_") {
+                let layerIndex = Int(name.suffix(1)) ?? 0
+                let starSpeeds: [CGFloat] = [20, 35, 50] // pixels per second
+                layerSpeed = starSpeeds[min(layerIndex, starSpeeds.count - 1)]
+            } else {
+                layerSpeed = 30 // Default speed
+            }
+            
+            // Move star downward
+            star.position.y -= layerSpeed * deltaTime
+            
+            // Reset star to top when it goes off bottom of screen
+            if star.position.y < -screenHeight/2 - 50 {
+                star.position.y = screenHeight/2 + 50
+                star.position.x = CGFloat.random(in: -self.size.width/2...self.size.width/2)
+            }
         }
     }
 }
