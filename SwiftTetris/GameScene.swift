@@ -282,12 +282,12 @@ class GameScene: SKScene {
         let screenWidth = self.size.width
         let screenHeight = self.size.height
         
-        // Score, Level, Lines UI - positioned on top left, stacked vertically
+        // Score, Level, Lines UI - aligned with game area's left edge
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
         scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 80)
+        scoreLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 80)
         scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
@@ -295,7 +295,7 @@ class GameScene: SKScene {
         levelLabel.text = "LEVEL: 1"
         levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 50)
+        levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 50)
         levelLabel.horizontalAlignmentMode = .left
         uiNode.addChild(levelLabel)
         
@@ -303,7 +303,7 @@ class GameScene: SKScene {
         linesLabel.text = "LINES: 0"
         linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: -screenWidth/2 + 80, y: boardHeight/2 + 20)
+        linesLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 20)
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
@@ -336,9 +336,9 @@ class GameScene: SKScene {
         let screenHeight = self.size.height
         let boardHeight = CGFloat(rows) * blockSize
         
-        // D-pad on bottom left - positioned higher and more to the right to be visible
-        let dpadSize: CGFloat = 50
-        let dpadCenter = CGPoint(x: -screenWidth/2 + 120, y: -boardHeight/2 + 60)
+        // D-pad below the game area - bigger buttons
+        let dpadSize: CGFloat = 60
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 80)
         
         // Left button
         let leftButton = createDpadButton(direction: "left")
@@ -358,8 +358,8 @@ class GameScene: SKScene {
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
-        // A and B buttons on bottom right - positioned to be both visible
-        let buttonCenter = CGPoint(x: screenWidth/2 - 100, y: -boardHeight/2 + 60)
+        // A and B buttons level with d-pad center
+        let buttonCenter = CGPoint(x: screenWidth/4, y: dpadCenter.y)
         
         // A button (rotate clockwise)
         let aButton = createActionButton(letter: "A")
@@ -367,9 +367,9 @@ class GameScene: SKScene {
         aButton.name = "aButton"
         uiNode.addChild(aButton)
         
-        // B button (rotate counter-clockwise)  
+        // B button (rotate counter-clockwise) - same level as A button
         let bButton = createActionButton(letter: "B")
-        bButton.position = CGPoint(x: buttonCenter.x - 40, y: buttonCenter.y - 50)
+        bButton.position = CGPoint(x: buttonCenter.x - 40, y: buttonCenter.y)
         bButton.name = "bButton"
         uiNode.addChild(bButton)
     }
@@ -377,24 +377,24 @@ class GameScene: SKScene {
     func createDpadButton(direction: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // Black square with white outline
-        let size: CGFloat = 40
+        // Black square with white outline - bigger size
+        let size: CGFloat = 50
         let button = SKShapeNode(rect: CGRect(x: -size/2, y: -size/2, width: size, height: size))
         button.fillColor = .black
         button.strokeColor = .white
         button.lineWidth = 2
         buttonNode.addChild(button)
         
-        // Arrow or direction indicator
+        // Arrow or direction indicator - using consistent arrow style
         let arrow = SKLabelNode(fontNamed: "Helvetica-Bold")
-        arrow.fontSize = 18
+        arrow.fontSize = 24
         arrow.fontColor = .white
         arrow.verticalAlignmentMode = .center
         arrow.horizontalAlignmentMode = .center
         
         switch direction {
-        case "left": arrow.text = "◀"
-        case "right": arrow.text = "▶"
+        case "left": arrow.text = "◄"
+        case "right": arrow.text = "►"
         case "down": arrow.text = "▼"
         default: arrow.text = "?"
         }
