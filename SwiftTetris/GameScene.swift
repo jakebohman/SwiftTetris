@@ -213,10 +213,6 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
-    // Starfield Background
-    private var starfieldNode: SKNode!
-    private var stars: [SKSpriteNode] = []
-    
     // Button auto-repeat functionality
     private var leftButtonPressed = false
     private var rightButtonPressed = false
@@ -261,7 +257,6 @@ class GameScene: SKScene {
         backgroundColor = SKColor.black
         
         setupGameNodes()
-        setupStarfield()
         setupUI()
         setupSounds()
         showMainMenu()
@@ -281,40 +276,6 @@ class GameScene: SKScene {
         nextPieceNode = SKNode()
         nextPieceNode.name = "nextPiece"
         uiNode.addChild(nextPieceNode)
-    }
-    
-    func setupStarfield() {
-        starfieldNode = SKNode()
-        starfieldNode.name = "starfield"
-        starfieldNode.zPosition = -100 // Behind everything
-        addChild(starfieldNode)
-        
-        let screenWidth = self.size.width
-        let screenHeight = self.size.height
-        
-        // Create multiple layers of stars with different sizes and speeds
-        let starCounts = [15, 25, 35] // Small, medium, large star counts
-        let starSizes: [CGFloat] = [1.0, 1.5, 2.0]
-        let starSpeeds: [CGFloat] = [20, 35, 50] // pixels per second
-        let starOpacities: [CGFloat] = [0.3, 0.5, 0.8]
-        
-        for layer in 0..<starCounts.count {
-            for _ in 0..<starCounts[layer] {
-                let star = SKSpriteNode(color: .white, size: CGSize(width: starSizes[layer], height: starSizes[layer]))
-                
-                // Random position across the screen
-                star.position = CGPoint(
-                    x: CGFloat.random(in: -screenWidth/2...screenWidth/2),
-                    y: CGFloat.random(in: -screenHeight/2...screenHeight/2 + 100) // Start some above screen
-                )
-                
-                star.alpha = starOpacities[layer]
-                star.name = "star_\(layer)" // Layer identifier for different speeds
-                
-                starfieldNode.addChild(star)
-                stars.append(star)
-            }
-        }
     }
     
     func setupUI() {
@@ -353,6 +314,10 @@ class GameScene: SKScene {
         controllerShadow.strokeColor = .clear
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
+        
+        // Add circuit board pattern background (behind game area but avoiding UI elements)
+        createCircuitBoardBackground(screenWidth: screenWidth, screenHeight: screenHeight, 
+                                   boardWidth: boardWidth, boardHeight: boardHeight)
         
         // Add Nintendo branding on controller - positioned at right edge just under controller top
         let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -709,6 +674,102 @@ class GameScene: SKScene {
         triangle.name = "playTriangle"
         
         return triangle
+    }
+    
+    func createCircuitBoardBackground(screenWidth: CGFloat, screenHeight: CGFloat, 
+                                    boardWidth: CGFloat, boardHeight: CGFloat) {
+        // Create circuit board pattern background
+        let circuitBackground = SKNode()
+        circuitBackground.zPosition = -20 // Far behind everything
+        
+        // Dark green PCB color
+        let pcbColor = SKColor(red: 0.1, green: 0.2, blue: 0.1, alpha: 0.3)
+        let traceColor = SKColor(red: 0.2, green: 0.4, blue: 0.2, alpha: 0.4)
+        
+        // Main background areas (avoid score/next piece areas)
+        let leftArea = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
+                                              width: screenWidth/2 - boardWidth/4, height: screenHeight))
+        leftArea.fillColor = pcbColor
+        leftArea.strokeColor = .clear
+        circuitBackground.addChild(leftArea)
+        
+        let rightArea = SKShapeNode(rect: CGRect(x: boardWidth/4, y: -screenHeight/2, 
+                                               width: screenWidth/2 - boardWidth/4, height: screenHeight))
+        rightArea.fillColor = pcbColor
+        rightArea.strokeColor = .clear
+        circuitBackground.addChild(rightArea)
+        
+        // Top area behind game (but below UI elements)
+        let topArea = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 20, y: boardHeight/2 + 10, 
+                                             width: boardWidth + 40, height: 15))
+        topArea.fillColor = pcbColor
+        topArea.strokeColor = .clear
+        circuitBackground.addChild(topArea)
+        
+        // Add circuit traces - horizontal lines
+        for i in 0..<8 {
+            let y = -screenHeight/2 + CGFloat(i) * (screenHeight / 8)
+            
+            // Left side traces
+            let leftTrace = SKShapeNode(rect: CGRect(x: -screenWidth/2 + 10, y: y, 
+                                                   width: screenWidth/2 - boardWidth/4 - 20, height: 2))
+            leftTrace.fillColor = traceColor
+            leftTrace.strokeColor = .clear
+            circuitBackground.addChild(leftTrace)
+            
+            // Right side traces
+            let rightTrace = SKShapeNode(rect: CGRect(x: boardWidth/4 + 10, y: y, 
+                                                    width: screenWidth/2 - boardWidth/4 - 20, height: 2))
+            rightTrace.fillColor = traceColor
+            rightTrace.strokeColor = .clear
+            circuitBackground.addChild(rightTrace)
+        }
+        
+        // Add circuit traces - vertical lines
+        for i in 0..<6 {
+            let leftX = -screenWidth/2 + 20 + CGFloat(i) * 30
+            let rightX = boardWidth/4 + 20 + CGFloat(i) * 30
+            
+            if leftX < -boardWidth/4 {
+                let leftVertTrace = SKShapeNode(rect: CGRect(x: leftX, y: -screenHeight/2 + 10, 
+                                                           width: 2, height: screenHeight - 20))
+                leftVertTrace.fillColor = traceColor
+                leftVertTrace.strokeColor = .clear
+                circuitBackground.addChild(leftVertTrace)
+            }
+            
+            if rightX < screenWidth/2 - 10 {
+                let rightVertTrace = SKShapeNode(rect: CGRect(x: rightX, y: -screenHeight/2 + 10, 
+                                                            width: 2, height: screenHeight - 20))
+                rightVertTrace.fillColor = traceColor
+                rightVertTrace.strokeColor = .clear
+                circuitBackground.addChild(rightVertTrace)
+            }
+        }
+        
+        // Add small circuit components (resistors, capacitors)
+        for i in 0..<12 {
+            let leftX = -screenWidth/2 + 15 + CGFloat(i % 4) * 40
+            let rightX = boardWidth/4 + 15 + CGFloat(i % 4) * 40
+            let y = -screenHeight/2 + 30 + CGFloat(i / 4) * (screenHeight / 4)
+            
+            // Small rectangular components
+            if leftX < -boardWidth/4 {
+                let leftComponent = SKShapeNode(rect: CGRect(x: leftX, y: y, width: 8, height: 4))
+                leftComponent.fillColor = SKColor(red: 0.3, green: 0.3, blue: 0.1, alpha: 0.6)
+                leftComponent.strokeColor = .clear
+                circuitBackground.addChild(leftComponent)
+            }
+            
+            if rightX < screenWidth/2 - 15 {
+                let rightComponent = SKShapeNode(rect: CGRect(x: rightX, y: y, width: 8, height: 4))
+                rightComponent.fillColor = SKColor(red: 0.3, green: 0.3, blue: 0.1, alpha: 0.6)
+                rightComponent.strokeColor = .clear
+                circuitBackground.addChild(rightComponent)
+            }
+        }
+        
+        addChild(circuitBackground)
     }
     
     func setupSounds() {
@@ -1599,9 +1660,6 @@ class GameScene: SKScene {
     // MARK: - Game Loop
     
     override func update(_ currentTime: TimeInterval) {
-        // Update starfield animation (always active)
-        updateStarfield()
-        
         guard gameState == .playing else { return }
         
         // Initialize timer
@@ -1628,32 +1686,6 @@ class GameScene: SKScene {
         // Lock delay - give player time to move/rotate before locking
         if lockTimer > 0 && currentTime - lockTimer >= lockDelay {
             lockCurrent()
-        }
-    }
-    
-    func updateStarfield() {
-        let screenHeight = self.size.height
-        let deltaTime: CGFloat = 1.0 / 60.0 // Assume 60 FPS for consistent movement
-        
-        for star in stars {
-            // Get layer from star name to determine speed
-            let layerSpeed: CGFloat
-            if let name = star.name, name.contains("star_") {
-                let layerIndex = Int(name.suffix(1)) ?? 0
-                let starSpeeds: [CGFloat] = [20, 35, 50] // pixels per second
-                layerSpeed = starSpeeds[min(layerIndex, starSpeeds.count - 1)]
-            } else {
-                layerSpeed = 30 // Default speed
-            }
-            
-            // Move star downward
-            star.position.y -= layerSpeed * deltaTime
-            
-            // Reset star to top when it goes off bottom of screen
-            if star.position.y < -screenHeight/2 - 50 {
-                star.position.y = screenHeight/2 + 50
-                star.position.x = CGFloat.random(in: -self.size.width/2...self.size.width/2)
-            }
         }
     }
 }
