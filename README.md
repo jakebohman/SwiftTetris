@@ -2,8 +2,6 @@
 
 A faithful recreation of classic NES Tetris built in Swift using SpriteKit.
 
-![SwiftTetris Screenshot](TetrisCapture.png)
-
 ## Features
 
 The game recreates the authentic NES Tetris experience with accurate scoring, level progression, and gameplay mechanics. Players can control pieces using touch controls that mimic the original NES controller, complete with a realistic D-pad and A/B buttons.
