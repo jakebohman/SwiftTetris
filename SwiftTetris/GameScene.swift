@@ -1031,7 +1031,7 @@ class GameScene: SKScene {
         let boxBottom: CGFloat = -35
         let verticalCenter = (labelBottom + boxBottom) / 2
         let nextPieceNodeY: CGFloat = 25 // From setup
-        let offsetY = 0 //verticalCenter - nextPieceNodeY - CGFloat(pieceHeight)
+        let offsetY = verticalCenter - nextPieceNodeY - CGFloat(pieceHeight) * nextBlockSize / 2 + nextBlockSize / 2
         
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
