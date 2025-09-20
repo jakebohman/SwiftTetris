@@ -542,9 +542,10 @@ class GameScene: SKScene {
     func createActionButton(letter: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // Off-white/cream square background - bigger
-        let squareSize: CGFloat = 70
-        let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize))
+        // Off-white/cream rounded square background - smaller
+        let squareSize: CGFloat = 50
+        let cornerRadius: CGFloat = 8
+        let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize), cornerRadius: cornerRadius)
         let creamColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0)
         square.fillColor = creamColor
         square.strokeColor = creamColor
@@ -559,10 +560,10 @@ class GameScene: SKScene {
         circle.lineWidth = 2
         buttonNode.addChild(circle)
         
-        // Red letter positioned below button, aligned with right edge of square
-        let label = SKLabelNode(fontNamed: "Helvetica-Bold")
+        // Red letter positioned below button, aligned with right edge of square - retro font
+        let label = SKLabelNode(fontNamed: "Courier-Bold")
         label.text = letter
-        label.fontSize = 22
+        label.fontSize = 18
         label.fontColor = .red
         label.verticalAlignmentMode = .top
         label.horizontalAlignmentMode = .right
