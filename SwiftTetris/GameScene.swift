@@ -418,32 +418,41 @@ class GameScene: SKScene {
         let screenHeight = self.size.height
         let boardHeight = CGFloat(rows) * blockSize
         
-        // D-pad below the game area - moved higher so bottom button is visible
-        let dpadSize: CGFloat = 60
+        // Create NES-style D-pad with cross shape and white border
         let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 30)
+        let dpadCrossBackground = createDpadCross()
+        dpadCrossBackground.position = dpadCenter
+        uiNode.addChild(dpadCrossBackground)
+        
+        // D-pad buttons positioned on the cross arms
+        let dpadOffset: CGFloat = 40 // Distance from center to button center
+        
+        // Up button (will be hidden behind game area but still functional)
+        let upButton = createDpadButton(direction: "up")
+        upButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y + dpadOffset)
+        upButton.name = "upButton"
+        uiNode.addChild(upButton)
         
         // Down button
         let downButton = createDpadButton(direction: "down")
-        downButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y - dpadSize)
+        downButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y - dpadOffset)
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
-        // Left and right buttons positioned so their bottom corners meet top corners of down button
-        // Button size is 50, so top of down button is at downButton.position.y + 25
-        // We want left/right bottoms at that level, so left/right centers should be 25 higher
-        let leftRightY = downButton.position.y + 50 // Position so bottom corners touch top corners
-        
-        // Left button - moved closer to center
+        // Left button
         let leftButton = createDpadButton(direction: "left")
-        leftButton.position = CGPoint(x: dpadCenter.x - 50, y: leftRightY)
+        leftButton.position = CGPoint(x: dpadCenter.x - dpadOffset, y: dpadCenter.y)
         leftButton.name = "leftButton"
         uiNode.addChild(leftButton)
         
-        // Right button - moved closer to center
+        // Right button
         let rightButton = createDpadButton(direction: "right")
-        rightButton.position = CGPoint(x: dpadCenter.x + 50, y: leftRightY)
+        rightButton.position = CGPoint(x: dpadCenter.x + dpadOffset, y: dpadCenter.y)
         rightButton.name = "rightButton"
         uiNode.addChild(rightButton)
+        
+        // Update button center for A/B buttons (use right button position as reference)
+        let leftRightY = dpadCenter.y
         
         // A and B buttons aligned with tops of left/right arrows
         let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY - 10) // Offset to align tops (70px A/B vs 50px d-pad)
@@ -464,19 +473,21 @@ class GameScene: SKScene {
     func createDpadButton(direction: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // Black square with white outline - bigger size
-        let size: CGFloat = 50
-        let button = SKShapeNode(rect: CGRect(x: -size/2, y: -size/2, width: size, height: size))
-        button.fillColor = .black
-        button.strokeColor = .white
-        button.lineWidth = 2
-        buttonNode.addChild(button)
-        
+        // No background - the cross provides the background
         // Create equilateral triangle arrows
         let triangleSize: CGFloat = 12
         let triangle: SKShapeNode
         
         switch direction {
+        case "up":
+            // Up-pointing equilateral triangle
+            let upPath = CGMutablePath()
+            upPath.move(to: CGPoint(x: 0, y: triangleSize))
+            upPath.addLine(to: CGPoint(x: triangleSize * 0.866, y: -triangleSize/2))
+            upPath.addLine(to: CGPoint(x: -triangleSize * 0.866, y: -triangleSize/2))
+            upPath.closeSubpath()
+            triangle = SKShapeNode(path: upPath)
+            
         case "left":
             // Left-pointing equilateral triangle
             let leftPath = CGMutablePath()
@@ -544,6 +555,41 @@ class GameScene: SKScene {
         buttonNode.addChild(label)
         
         return buttonNode
+    }
+    
+    func createDpadCross() -> SKNode {
+        let crossNode = SKNode()
+        
+        // NES D-pad dimensions
+        let armLength: CGFloat = 60
+        let armWidth: CGFloat = 20
+        let centerSize: CGFloat = 20
+        
+        // Horizontal arm of the cross
+        let horizontalArm = SKShapeNode(rect: CGRect(x: -armLength/2, y: -armWidth/2, width: armLength, height: armWidth))
+        horizontalArm.fillColor = .black
+        horizontalArm.strokeColor = .white
+        horizontalArm.lineWidth = 2
+        horizontalArm.zPosition = -2 // Behind the button arrows
+        crossNode.addChild(horizontalArm)
+        
+        // Vertical arm of the cross
+        let verticalArm = SKShapeNode(rect: CGRect(x: -armWidth/2, y: -armLength/2, width: armWidth, height: armLength))
+        verticalArm.fillColor = .black
+        verticalArm.strokeColor = .white
+        verticalArm.lineWidth = 2
+        verticalArm.zPosition = -2 // Behind the button arrows
+        crossNode.addChild(verticalArm)
+        
+        // Center circle to clean up the intersection
+        let center = SKShapeNode(circleOfRadius: centerSize/2)
+        center.fillColor = .black
+        center.strokeColor = .white
+        center.lineWidth = 2
+        center.zPosition = -1 // Above the arms but behind arrows
+        crossNode.addChild(center)
+        
+        return crossNode
     }
     
     func createPauseButton() -> SKNode {
