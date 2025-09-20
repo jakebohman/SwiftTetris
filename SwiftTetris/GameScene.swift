@@ -429,14 +429,14 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         
         // Create NES-style D-pad with cross shape and white border
-        // Position so it's below game area but bottom is above screen bottom
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 80)
+        // Position halfway between bottom of game area and bottom of screen
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -(boardHeight + screenHeight) / 4)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
         
         // D-pad buttons positioned in center of each arm of the cross
-        let dpadOffset: CGFloat = 30 // Centered within each 60px arm (half of 120px total length)
+        let dpadOffset: CGFloat = 37.5 // Centered within each 75px arm (half of 150px total length)
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
@@ -571,10 +571,10 @@ class GameScene: SKScene {
     func createDpadCross() -> SKNode {
         let crossNode = SKNode()
         
-        // NES D-pad dimensions - square cross arms
-        let armSize: CGFloat = 120   // Each arm extends this distance from center
-        let armThickness: CGFloat = 40 // Thickness of each arm
-        let centerSize: CGFloat = 40 // Center intersection size
+        // NES D-pad dimensions - square cross arms (bigger size)
+        let armSize: CGFloat = 150   // Each arm extends this distance from center
+        let armThickness: CGFloat = 50 // Thickness of each arm (maintains square shape)
+        let centerSize: CGFloat = 50 // Center intersection size
         
         // Horizontal arm of the cross (no internal stroke to avoid white lines)
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armSize/2, y: -armThickness/2, width: armSize, height: armThickness))
