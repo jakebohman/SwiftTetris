@@ -1016,14 +1016,14 @@ class GameScene: SKScene {
             let tile = SKSpriteNode(color: nextKind.color, size: CGSize(width: nextBlockSize, height: nextBlockSize))
 
             switch nextKind {
-                case .l, .s, .t, .z:
-                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
                 case .i:
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize - nextBlockSize/2)
                 case .j:
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + nextBlockSize/2, y: CGFloat(p.y) * nextBlockSize + nextBlockSize/2)
                 case .o:
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + nextBlockSize/2, y: CGFloat(p.y) * nextBlockSize)
+                default:
+                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
 
 
                 
