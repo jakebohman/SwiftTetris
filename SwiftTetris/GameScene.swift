@@ -533,7 +533,7 @@ class GameScene: SKScene {
             triangle = SKShapeNode(circleOfRadius: triangleSize)
         }
         
-        triangle.fillColor = .white
+        triangle.fillColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0) // Off-white/cream color
         triangle.strokeColor = .clear
         buttonNode.addChild(triangle)
         return buttonNode
@@ -542,11 +542,12 @@ class GameScene: SKScene {
     func createActionButton(letter: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // White square background - bigger
+        // Off-white/cream square background - bigger
         let squareSize: CGFloat = 70
         let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize))
-        square.fillColor = .white
-        square.strokeColor = .white
+        let creamColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0)
+        square.fillColor = creamColor
+        square.strokeColor = creamColor
         square.lineWidth = 1
         buttonNode.addChild(square)
         
@@ -624,7 +625,7 @@ class GameScene: SKScene {
         
         outerBorder.path = borderPath
         outerBorder.fillColor = .clear
-        outerBorder.strokeColor = .white
+        outerBorder.strokeColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0) // Off-white/cream border
         outerBorder.lineWidth = 2
         outerBorder.zPosition = 0 // Above everything else in the cross
         crossNode.addChild(outerBorder)
