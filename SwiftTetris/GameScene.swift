@@ -435,8 +435,8 @@ class GameScene: SKScene {
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
         
-        // D-pad buttons positioned in center of each arm of the cross
-        let dpadOffset: CGFloat = 37.5 // Centered within each 75px arm (half of 150px total length)
+        // D-pad buttons positioned in center of each square cross arm
+        let dpadOffset: CGFloat = 50 // Centered within each square arm section (beyond the center intersection)
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
