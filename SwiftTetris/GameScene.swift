@@ -319,8 +319,9 @@ class GameScene: SKScene {
         uiNode.addChild(linesLabel)
         
         // Larger Next piece container to include label and fit 4-wide tetromino
+        // Position so right edge of box aligns with right edge of game area
         let nextContainer = SKNode()
-        nextContainer.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
+        nextContainer.position = CGPoint(x: boardWidth/2 - 50, y: boardHeight/2 + 40)
         
         // "Next" label at the top of the box
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -343,14 +344,14 @@ class GameScene: SKScene {
         uiNode.addChild(nextContainer)
         
         // Position nextPieceNode inside the box area (below the label)
-        nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 25)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 - 50, y: boardHeight/2 + 25)
         
-        // Add pause button - positioned to the right of the top nook
+        // Add pause button - positioned at very top right, above Next box
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
         pauseButton.text = "PAUSE"
         pauseButton.fontSize = 16
         pauseButton.fontColor = .yellow
-        pauseButton.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 20)
+        pauseButton.position = CGPoint(x: screenWidth/2 - 30, y: boardHeight/2 + 100)
         pauseButton.horizontalAlignmentMode = .center
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
@@ -1165,24 +1166,39 @@ class GameScene: SKScene {
         // Left button auto-repeat
         if leftButtonPressed && (currentTime - lastLeftRepeat) > buttonRepeatDelay {
             if (currentTime - lastLeftRepeat) > (buttonRepeatDelay + leftRightRepeatRate) {
-                _ = attemptMove(dx: -1, dy: 0)
-                lastLeftRepeat = currentTime - buttonRepeatDelay // Adjust for consistent timing
+                let success = attemptMove(dx: -1, dy: 0)
+                if success {
+                    lastLeftRepeat = currentTime - buttonRepeatDelay // Adjust for consistent timing
+                } else {
+                    // If move failed (piece is blocked), stop auto-repeat for left
+                    leftButtonPressed = false
+                }
             }
         }
         
         // Right button auto-repeat
         if rightButtonPressed && (currentTime - lastRightRepeat) > buttonRepeatDelay {
             if (currentTime - lastRightRepeat) > (buttonRepeatDelay + leftRightRepeatRate) {
-                _ = attemptMove(dx: 1, dy: 0)
-                lastRightRepeat = currentTime - buttonRepeatDelay
+                let success = attemptMove(dx: 1, dy: 0)
+                if success {
+                    lastRightRepeat = currentTime - buttonRepeatDelay
+                } else {
+                    // If move failed (piece is blocked), stop auto-repeat for right
+                    rightButtonPressed = false
+                }
             }
         }
         
         // Down button auto-repeat (faster)
         if downButtonPressed && (currentTime - lastDownRepeat) > buttonRepeatDelay {
             if (currentTime - lastDownRepeat) > (buttonRepeatDelay + downRepeatRate) {
-                _ = attemptMove(dx: 0, dy: -1)
-                lastDownRepeat = currentTime - buttonRepeatDelay
+                let success = attemptMove(dx: 0, dy: -1)
+                if success {
+                    lastDownRepeat = currentTime - buttonRepeatDelay
+                } else {
+                    // If move failed (piece is blocked), stop auto-repeat for down
+                    downButtonPressed = false
+                }
             }
         }
     }
