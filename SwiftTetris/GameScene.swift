@@ -1036,8 +1036,8 @@ class GameScene: SKScene {
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
                                   size: CGSize(width: nextBlockSize, height: nextBlockSize))
-            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + offsetX, 
-                                  y: CGFloat(p.y) * nextBlockSize + offsetY)
+            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize,// + offsetX, 
+                                  y: CGFloat(p.y) * nextBlockSize)// + offsetY)
             nextPieceNode.addChild(tile)
         }
     }
