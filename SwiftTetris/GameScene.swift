@@ -1011,12 +1011,26 @@ class GameScene: SKScene {
         // Scale to fit box: 100px wide box should fit 4-wide I-piece perfectly
         // Leave some padding, so use 80px for 4 blocks = 20px per block
         let nextBlockSize: CGFloat = 20
-        
+
+        switch nextKind {
+        case .i:
+            // I-piece is 4 blocks wide
+            nextPieceNode.size = CGSize(width: nextBlockSize * 4, height: nextBlockSize)
+        case .j, .l:
+            // J and L pieces are 3 blocks wide
+            nextPieceNode.size = CGSize(width: nextBlockSize * 3, height: nextBlockSize * 2)
+        case .o:
+            // O-piece is 2 blocks wide
+            nextPieceNode.size = CGSize(width: nextBlockSize * 2, height: nextBlockSize * 2)
+        case .s, .t, .z:
+            // S, T, and Z pieces are 3 blocks wide
+            nextPieceNode.size = CGSize(width: nextBlockSize * 3, height: nextBlockSize * 2)
+        }
+        }
+
         for p in nextTetromino.blocks {
-            let tile = SKSpriteNode(color: nextKind.color, 
-                                  size: CGSize(width: nextBlockSize, height: nextBlockSize))
-            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, 
-                                  y: CGFloat(p.y) * nextBlockSize)
+            let tile = SKSpriteNode(color: nextKind.color, size: CGSize(width: nextBlockSize, height: nextBlockSize))
+            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
             nextPieceNode.addChild(tile)
         }
     }
