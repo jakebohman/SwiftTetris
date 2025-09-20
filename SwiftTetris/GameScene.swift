@@ -16,8 +16,6 @@ enum GameState {
     case gameOver
 }
 
-// MARK: - Models
-
 enum TileColor {
     case none
     case i, j, l, o, s, t, z
@@ -39,7 +37,6 @@ enum TileColor {
 struct Point { var x: Int; var y: Int }
 
 struct Tetromino {
-    // Pre-defined rotation states: arrays of Point offsets from origin
     let kind: TileColor
     let rotations: [[Point]]  // 4 rotation states
     var rotationIndex: Int = 0
@@ -53,10 +50,8 @@ struct Tetromino {
     mutating func rotateCounter() { rotationIndex = (rotationIndex - 1 + rotations.count) % rotations.count }
 }
 
-// MARK: - Tetromino factory (NES-like deterministic shapes)
+// Tetromino factory
 func makeTetromino(kind: TileColor, spawnX: Int = columns/2 - 1) -> Tetromino {
-    // Rotation definitions as relative coordinates (x,y). Origin chosen per shape.
-    // Coordinates chosen so that positive y goes up.
     switch kind {
     case .i:
         return Tetromino(kind: .i,
@@ -133,8 +128,6 @@ func makeTetromino(kind: TileColor, spawnX: Int = columns/2 - 1) -> Tetromino {
     }
 }
 
-// MARK: - Board
-
 class Board {
     private(set) var grid: [[TileColor]] = Array(
         repeating: Array(repeating: .none, count: rows),
@@ -154,13 +147,11 @@ class Board {
         for x in 0..<columns {
             grid[x][y] = .none
         }
-        // drop everything above down one
         for row in (y+1)..<rows {
             for x in 0..<columns {
                 grid[x][row-1] = grid[x][row]
             }
         }
-        // clear top row
         for x in 0..<columns { grid[x][rows-1] = .none }
     }
 
@@ -176,8 +167,6 @@ class Board {
         return full
     }
 }
-
-// MARK: - GameScene
 
 class GameScene: SKScene {
     // Game State
@@ -213,21 +202,21 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
-    // Button auto-repeat functionality
+    // Button auto-repeat
     private var leftButtonPressed = false
     private var rightButtonPressed = false
     private var downButtonPressed = false
     private var lastLeftRepeat: TimeInterval = 0
     private var lastRightRepeat: TimeInterval = 0
     private var lastDownRepeat: TimeInterval = 0
-    private var buttonRepeatDelay: TimeInterval = 0.3 // Initial delay before repeating
-    private var leftRightRepeatRate: TimeInterval = 0.15 // Repeat every 150ms for left/right
-    private var downRepeatRate: TimeInterval = 0.05 // Repeat every 50ms for down (faster)
+    private var buttonRepeatDelay: TimeInterval = 0.3
+    private var leftRightRepeatRate: TimeInterval = 0.15
+    private var downRepeatRate: TimeInterval = 0.05
     
     // Random number generation
     private var rngSeed = 0xC0FFEE
     
-    // Sound effects
+    // Sound effects - Not impelemented
     private var moveSoundAction: SKAction!
     private var rotateSoundAction: SKAction!
     private var lockSoundAction: SKAction!
@@ -235,8 +224,7 @@ class GameScene: SKScene {
     private var gameOverSoundAction: SKAction!
     private var backgroundMusicPlayer: AVAudioPlayer?
     
-    // MARK: - Helper Functions
-    
+    // Blend colors for shading of blocks
     func blendColor(_ color: SKColor, with blendColor: SKColor, fraction: CGFloat) -> SKColor {
         var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
         var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
@@ -252,6 +240,7 @@ class GameScene: SKScene {
         )
     }
 
+    // Set up the scene
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         backgroundColor = SKColor.black
@@ -262,8 +251,7 @@ class GameScene: SKScene {
         showMainMenu()
     }
 
-    // MARK: - Setup Methods
-    
+    // Sets up the main game nodes
     func setupGameNodes() {
         boardNode = SKNode()
         boardNode.name = "board"
@@ -278,80 +266,71 @@ class GameScene: SKScene {
         uiNode.addChild(nextPieceNode)
     }
     
+    // Sets up the UI elements and NES controller background
     func setupUI() {
         let screenWidth = self.size.width
         let screenHeight = self.size.height
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
         
-        // Add classic NES pattern background
-        createNESPatternBackground(screenWidth: screenWidth, screenHeight: screenHeight, boardWidth: boardWidth, boardHeight: boardHeight)
-        
         // Add NES controller-style background covering entire bottom area
-        let controllerTop = -boardHeight/2 - 10 // Controller starts 10px below game area
-        let originalHeight = controllerTop - (-screenHeight/2) // Original height from game bottom to screen bottom
-        let controllerHeight = originalHeight * 2 // Make it twice as tall
+        let controllerTop = -boardHeight/2 - 10
+        let originalHeight = controllerTop - (-screenHeight/2)
+        let controllerHeight = originalHeight * 2
         
-        // Main controller body - full width, starts below game area
-        let controllerBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
-                                                           width: screenWidth, height: controllerHeight))
-        controllerBackground.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.75, alpha: 1.0) // Light gray NES controller color
-        controllerBackground.strokeColor = SKColor(red: 0.5, green: 0.5, blue: 0.55, alpha: 1.0) // Darker border
+        // Main controller body
+        let controllerBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, width: screenWidth, height: controllerHeight))
+        controllerBackground.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.75, alpha: 1.0)
+        controllerBackground.strokeColor = SKColor(red: 0.5, green: 0.5, blue: 0.55, alpha: 1.0)
         controllerBackground.lineWidth = 3
-        controllerBackground.zPosition = -15 // Behind everything else
+        controllerBackground.zPosition = -15
         addChild(controllerBackground)
         
-        // Add subtle highlight on top edge for 3D effect (at actual controller top)
+        // Add highlight on top edge of controller
         let actualControllerTop = -screenHeight/2 + controllerHeight
-        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: actualControllerTop - 4, 
-                                                          width: screenWidth, height: 4))
-        controllerHighlight.fillColor = SKColor(red: 0.85, green: 0.85, blue: 0.9, alpha: 1.0) // Lighter highlight
+        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: actualControllerTop - 4, width: screenWidth, height: 4))
+        controllerHighlight.fillColor = SKColor(red: 0.85, green: 0.85, blue: 0.9, alpha: 1.0)
         controllerHighlight.strokeColor = .clear
         controllerHighlight.zPosition = -14
         addChild(controllerHighlight)
         
         // Add subtle shadow on bottom edge
-        let controllerShadow = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
-                                                       width: screenWidth, height: 4))
-        controllerShadow.fillColor = SKColor(red: 0.4, green: 0.4, blue: 0.45, alpha: 1.0) // Darker shadow
+        let controllerShadow = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, width: screenWidth, height: 4))
+        controllerShadow.fillColor = SKColor(red: 0.4, green: 0.4, blue: 0.45, alpha: 1.0)
         controllerShadow.strokeColor = .clear
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
         
-        // Add Nintendo branding on controller - positioned at right edge just under controller top
+        // Add Nintendo branding on controller
         let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nintendoLabel.text = "Nintendo"
         nintendoLabel.fontSize = 18
         nintendoLabel.fontColor = .red
         nintendoLabel.position = CGPoint(x: screenWidth/2 - 10, y: actualControllerTop - 25) // Moved slightly right to show "endo"
         nintendoLabel.horizontalAlignmentMode = .right
-        nintendoLabel.zPosition = -13 // Above controller but below game area
+        nintendoLabel.zPosition = -13
         addChild(nintendoLabel)
         
-        // Game area background - solid black to cover controller and match screen background
-        let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
-                                                         width: boardWidth + 4, height: boardHeight + 4))
+        // Game area background - solid black
+        let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, width: boardWidth + 4, height: boardHeight + 4))
         gameAreaBackground.strokeColor = .clear
-        gameAreaBackground.fillColor = .black // Solid black to match screen background
-        gameAreaBackground.zPosition = -1 // Above controller but below board elements
+        gameAreaBackground.fillColor = .black
+        gameAreaBackground.zPosition = -1
         boardNode.addChild(gameAreaBackground)
         
-        // Board border - positioned above controller
-        let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
-                                             width: boardWidth + 4, height: boardHeight + 4))
+        // Board border
+        let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, width: boardWidth + 4, height: boardHeight + 4))
         border.strokeColor = .white
         border.lineWidth = 2
         border.fillColor = .clear
-        border.zPosition = 0 // Above controller background
+        border.zPosition = 0
         boardNode.addChild(border)
         
         // Ensure game area nodes are above controller
-        boardNode.zPosition = 0 // Above controller (zPosition -15)
-        uiNode.zPosition = 1 // Above board
+        boardNode.zPosition = 0
+        uiNode.zPosition = 1
         
-        // Position UI elements with proper spacing
-        
-        // Score, Level, Lines UI - aligned with game area's left edge, moved down slightly
+        // Score, Level, Lines UI
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
         scoreLabel.fontSize = 16
@@ -376,24 +355,22 @@ class GameScene: SKScene {
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
-        // Score area box - same height as Next box, extending from left to Next box
-        let scoreBoxLeft = -boardWidth/2 - 2  // Align with game area border
-        let scoreBoxRight = boardWidth/2 - 49 - 50 // Next container x minus half Next box width
+        // Score area box
+        let scoreBoxLeft = -boardWidth/2 - 2
+        let scoreBoxRight = boardWidth/2 - 49 - 50
         let scoreBoxWidth = scoreBoxRight - scoreBoxLeft
-        let scoreBox = SKShapeNode(rect: CGRect(x: scoreBoxLeft, y: -35, 
-                                               width: scoreBoxWidth, height: 80))
+        let scoreBox = SKShapeNode(rect: CGRect(x: scoreBoxLeft, y: -35, width: scoreBoxWidth, height: 80))
         scoreBox.strokeColor = .white
         scoreBox.lineWidth = 2
         scoreBox.fillColor = .clear
-        scoreBox.position = CGPoint(x: 0, y: boardHeight/2 + 35) // Bottom aligns with game area top
+        scoreBox.position = CGPoint(x: 0, y: boardHeight/2 + 35)
         uiNode.addChild(scoreBox)
         
-        // Larger Next piece container to include label and fit 4-wide tetromino
-        // Position so right edge of box aligns perfectly with right edge of game area
+        // Next piece container
         let nextContainer = SKNode()
         nextContainer.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 35)
         
-        // "Next" label at the top of the box
+        // "Next" label
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
         nextLabel.fontSize = 14
@@ -403,8 +380,7 @@ class GameScene: SKScene {
         nextLabel.position = CGPoint(x: 0, y: 30)
         nextContainer.addChild(nextLabel)
         
-        // Larger box to contain both label and 4-wide tetromino (I-piece)
-        // Expand height to fully contain the label (fontSize 14 needs about 20px total)
+        // Next piece box
         let nextBox = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 80))
         nextBox.strokeColor = .white
         nextBox.lineWidth = 2
@@ -413,40 +389,37 @@ class GameScene: SKScene {
         
         uiNode.addChild(nextContainer)
         
-        // Position nextPieceNode inside the box area (below the label)
+        // Position nextPieceNode inside the box area
         nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 20)
         
-        // Add pause button - positioned at very top right, above Next box, slightly left
+        // Add pause button
         let pauseButton = createPauseButton()
         pauseButton.position = CGPoint(x: screenWidth/2 - 50, y: boardHeight/2 + 100)
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
         
-        // Add game controls
         setupGameControls()
     }
     
+    // Game controls- supports both buttons and swipe gestures
     func setupGameControls() {
         let screenWidth = self.size.width
         let screenHeight = self.size.height
         let boardHeight = CGFloat(rows) * blockSize
         
         // Create NES-style D-pad with cross shape and white border
-        // Position so bottom of horizontal bar is halfway between game area bottom and screen bottom
         let dpadCenter = CGPoint(x: -screenWidth/4, y: -(boardHeight + screenHeight) / 4 + 25)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
-        dpadCrossBackground.zPosition = -10 // Behind game area background (-1) to hide top portion
+        dpadCrossBackground.zPosition = -10
         uiNode.addChild(dpadCrossBackground)
+        let dpadOffset: CGFloat = 50
         
-        // D-pad buttons positioned in center of each square cross arm
-        let dpadOffset: CGFloat = 50 // Centered within each square arm section (beyond the center intersection)
-        
-        // Up button (hidden behind game area but still functional)
+        // Up button
         let upButton = createDpadButton(direction: "up")
         upButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y + dpadOffset)
         upButton.name = "upButton"
-        upButton.zPosition = -9 // Behind game area background (-1) to hide the arrow
+        upButton.zPosition = -9
         uiNode.addChild(upButton)
         
         // Down button
@@ -467,19 +440,17 @@ class GameScene: SKScene {
         rightButton.name = "rightButton"
         uiNode.addChild(rightButton)
         
-        // Update button center for A/B buttons (use right button position as reference)
+        // Align buttons
         let leftRightY = dpadCenter.y
+        let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY - 10)
         
-        // A and B buttons aligned with D-pad level
-        let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY - 10) // Aligned with D-pad with slight offset
-        
-        // A button (rotate clockwise) - moderate spacing, aligned with arrow tops
+        // A button
         let aButton = createActionButton(letter: "A")
         aButton.position = CGPoint(x: buttonCenter.x + 50, y: buttonCenter.y)
         aButton.name = "aButton"
         uiNode.addChild(aButton)
         
-        // B button (rotate counter-clockwise) - moderate spacing, aligned with arrow tops
+        // B button
         let bButton = createActionButton(letter: "B")
         bButton.position = CGPoint(x: buttonCenter.x - 50, y: buttonCenter.y)
         bButton.name = "bButton"
@@ -488,15 +459,11 @@ class GameScene: SKScene {
     
     func createDpadButton(direction: String) -> SKNode {
         let buttonNode = SKNode()
-        
-        // No background - the cross provides the background
-        // Create bigger equilateral triangle arrows for larger D-pad quadrants
         let triangleSize: CGFloat = 18
         let triangle: SKShapeNode
         
         switch direction {
         case "up":
-            // Up-pointing equilateral triangle
             let upPath = CGMutablePath()
             upPath.move(to: CGPoint(x: 0, y: triangleSize))
             upPath.addLine(to: CGPoint(x: triangleSize * 0.866, y: -triangleSize/2))
@@ -505,7 +472,6 @@ class GameScene: SKScene {
             triangle = SKShapeNode(path: upPath)
             
         case "left":
-            // Left-pointing equilateral triangle
             let leftPath = CGMutablePath()
             leftPath.move(to: CGPoint(x: -triangleSize, y: 0))
             leftPath.addLine(to: CGPoint(x: triangleSize/2, y: triangleSize * 0.866)) // sqrt(3)/2 for equilateral
@@ -514,7 +480,6 @@ class GameScene: SKScene {
             triangle = SKShapeNode(path: leftPath)
             
         case "right":
-            // Right-pointing equilateral triangle  
             let rightPath = CGMutablePath()
             rightPath.move(to: CGPoint(x: triangleSize, y: 0))
             rightPath.addLine(to: CGPoint(x: -triangleSize/2, y: triangleSize * 0.866))
@@ -523,7 +488,6 @@ class GameScene: SKScene {
             triangle = SKShapeNode(path: rightPath)
             
         case "down":
-            // Down-pointing equilateral triangle
             let downPath = CGMutablePath()
             downPath.move(to: CGPoint(x: 0, y: -triangleSize))
             downPath.addLine(to: CGPoint(x: triangleSize * 0.866, y: triangleSize/2))
@@ -532,20 +496,20 @@ class GameScene: SKScene {
             triangle = SKShapeNode(path: downPath)
             
         default:
-            // Default case (shouldn't happen)
             triangle = SKShapeNode(circleOfRadius: triangleSize)
         }
         
-        triangle.fillColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0) // Off-white/cream color
+        triangle.fillColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0)
         triangle.strokeColor = .clear
         buttonNode.addChild(triangle)
         return buttonNode
     }
     
+    // Creates A/B buttons
     func createActionButton(letter: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // Off-white/cream rounded square background - slightly bigger for better proportion
+        // Cream square background
         let squareSize: CGFloat = 70
         let cornerRadius: CGFloat = 5
         let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize), cornerRadius: cornerRadius)
@@ -555,7 +519,7 @@ class GameScene: SKScene {
         square.lineWidth = 1
         buttonNode.addChild(square)
         
-        // Red circular button - bigger
+        // Red circle
         let circleRadius: CGFloat = 25
         let circle = SKShapeNode(circleOfRadius: circleRadius)
         circle.fillColor = .red
@@ -563,14 +527,14 @@ class GameScene: SKScene {
         circle.lineWidth = 2
         buttonNode.addChild(circle)
         
-        // Red letter positioned below button, aligned with right edge of square - retro font, bigger
+        // Red letter positioned below button
         let label = SKLabelNode(fontNamed: "Courier-Bold")
         label.text = letter
         label.fontSize = 24
         label.fontColor = .red
         label.verticalAlignmentMode = .top
         label.horizontalAlignmentMode = .right
-        label.position = CGPoint(x: squareSize/2, y: -squareSize/2 - 5) // Right edge, below square
+        label.position = CGPoint(x: squareSize/2, y: -squareSize/2 - 5)
         buttonNode.addChild(label)
         
         return buttonNode
@@ -578,70 +542,68 @@ class GameScene: SKScene {
     
     func createDpadCross() -> SKNode {
         let crossNode = SKNode()
+
+        // Dimensions
+        let armSize: CGFloat = 150
+        let armThickness: CGFloat = 50
+        let centerSize: CGFloat = 50
         
-        // NES D-pad dimensions - square cross arms (bigger size)
-        let armSize: CGFloat = 150   // Each arm extends this distance from center
-        let armThickness: CGFloat = 50 // Thickness of each arm (maintains square shape)
-        let centerSize: CGFloat = 50 // Center intersection size
-        
-        // Horizontal arm of the cross (no internal stroke to avoid white lines)
+        // Horizontal arm of the cross
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armSize/2, y: -armThickness/2, width: armSize, height: armThickness))
         horizontalArm.fillColor = .black
-        horizontalArm.strokeColor = .clear // No internal stroke
-        horizontalArm.zPosition = -2 // Behind the button arrows
+        horizontalArm.strokeColor = .clean
+        horizontalArm.zPosition = -2
         crossNode.addChild(horizontalArm)
         
-        // Vertical arm of the cross (no internal stroke to avoid white lines)
+        // Vertical arm of the cross
         let verticalArm = SKShapeNode(rect: CGRect(x: -armThickness/2, y: -armSize/2, width: armThickness, height: armSize))
         verticalArm.fillColor = .black
-        verticalArm.strokeColor = .clear // No internal stroke
-        verticalArm.zPosition = -2 // Behind the button arrows
+        verticalArm.strokeColor = .clear
+        verticalArm.zPosition = -2
         crossNode.addChild(verticalArm)
         
-        // Center circle to clean up the intersection (no internal stroke)
+        // Center of the cross
         let center = SKShapeNode(circleOfRadius: centerSize/2)
         center.fillColor = .black
-        center.strokeColor = .clear // No internal stroke
-        center.zPosition = -1 // Above the arms but behind arrows
+        center.strokeColor = .clear
+        center.zPosition = -1
         crossNode.addChild(center)
         
-        // Outer border - single white outline around the entire cross shape
+        // Outer border
         let outerBorder = SKShapeNode()
         let borderPath = CGMutablePath()
-        
-        // Create the cross outline path
         let halfArm = armSize/2
         let halfWidth = armThickness/2
         
         // Start from top-left of vertical arm
         borderPath.move(to: CGPoint(x: -halfWidth, y: halfArm))
-        borderPath.addLine(to: CGPoint(x: -halfWidth, y: halfWidth)) // to horizontal arm top-left
-        borderPath.addLine(to: CGPoint(x: -halfArm, y: halfWidth)) // across to left end
-        borderPath.addLine(to: CGPoint(x: -halfArm, y: -halfWidth)) // down to bottom-left
-        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfWidth)) // to vertical arm bottom-left
-        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfArm)) // down to bottom
-        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfArm)) // across to bottom-right
-        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfWidth)) // up to vertical arm bottom-right
-        borderPath.addLine(to: CGPoint(x: halfArm, y: -halfWidth)) // to horizontal arm bottom-right
-        borderPath.addLine(to: CGPoint(x: halfArm, y: halfWidth)) // up to top-right
-        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfWidth)) // to vertical arm top-right
-        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfArm)) // up to top
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: halfWidth))
+        borderPath.addLine(to: CGPoint(x: -halfArm, y: halfWidth))
+        borderPath.addLine(to: CGPoint(x: -halfArm, y: -halfWidth))
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfWidth))
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfArm))
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfArm))
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfWidth))
+        borderPath.addLine(to: CGPoint(x: halfArm, y: -halfWidth))
+        borderPath.addLine(to: CGPoint(x: halfArm, y: halfWidth))
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfWidth))
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfArm))
         borderPath.closeSubpath()
         
         outerBorder.path = borderPath
         outerBorder.fillColor = .clear
-        outerBorder.strokeColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0) // Off-white/cream border
+        outerBorder.strokeColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0)
         outerBorder.lineWidth = 2
-        outerBorder.zPosition = 0 // Above everything else in the cross
+        outerBorder.zPosition = 0
         crossNode.addChild(outerBorder)
         
         return crossNode
     }
     
+    // Creates pause button with two vertical yellow bars
     func createPauseButton() -> SKNode {
         let buttonNode = SKNode()
         
-        // Create pause symbol (two vertical bars)
         let leftBar = SKShapeNode(rect: CGRect(x: -8, y: -10, width: 4, height: 20))
         leftBar.fillColor = .yellow
         leftBar.strokeColor = .clear
@@ -658,8 +620,8 @@ class GameScene: SKScene {
         return buttonNode
     }
     
+    // Creates play button
     func createPlayTriangle() -> SKShapeNode {
-        // Create right-pointing yellow triangle
         let triangleSize: CGFloat = 12
         let trianglePath = CGMutablePath()
         trianglePath.move(to: CGPoint(x: triangleSize, y: 0))
@@ -675,85 +637,15 @@ class GameScene: SKScene {
         return triangle
     }
     
-    func createNESPatternBackground(screenWidth: CGFloat, screenHeight: CGFloat, boardWidth: CGFloat, boardHeight: CGFloat) {
-        let backgroundNode = SKNode()
-        backgroundNode.name = "nesBackground"
-        backgroundNode.zPosition = -20 // Far behind everything
-        
-        // Classic NES diamond/dot pattern
-        let patternSize: CGFloat = 24
-        let dotSize: CGFloat = 2
-        let diamondSize: CGFloat = 3
-        
-        // Create pattern across entire screen, avoiding UI areas
-        let startX = -screenWidth/2
-        let endX = screenWidth/2
-        let startY = -screenHeight/2
-        let endY = screenHeight/2
-        
-        // Define exclusion zones for score and next boxes
-        let scoreBoxLeft = -boardWidth/2 - 2
-        let scoreBoxRight = boardWidth/2 - 99 // Next box area
-        let scoreBoxTop = boardHeight/2 + 115 // Above boxes
-        let scoreBoxBottom = boardHeight/2 - 35 // Below boxes
-        
-        var x = startX
-        while x < endX {
-            var y = startY
-            while y < endY {
-                // Skip areas where score and next boxes are located
-                let inScoreArea = (x >= scoreBoxLeft && x <= scoreBoxRight && 
-                                 y >= scoreBoxBottom && y <= scoreBoxTop)
-                
-                if !inScoreArea {
-                    // Alternate between dots and small diamonds
-                    let patternX = Int(x / patternSize) % 2
-                    let patternY = Int(y / patternSize) % 2
-                    
-                    if (patternX + patternY) % 2 == 0 {
-                        // Create small dot
-                        let dot = SKShapeNode(circleOfRadius: dotSize/2)
-                        dot.fillColor = SKColor(red: 0.15, green: 0.15, blue: 0.25, alpha: 0.6)
-                        dot.strokeColor = .clear
-                        dot.position = CGPoint(x: x, y: y)
-                        backgroundNode.addChild(dot)
-                    } else {
-                        // Create small diamond
-                        let diamond = SKShapeNode()
-                        let diamondPath = CGMutablePath()
-                        let half = diamondSize / 2
-                        diamondPath.move(to: CGPoint(x: 0, y: half))
-                        diamondPath.addLine(to: CGPoint(x: half, y: 0))
-                        diamondPath.addLine(to: CGPoint(x: 0, y: -half))
-                        diamondPath.addLine(to: CGPoint(x: -half, y: 0))
-                        diamondPath.closeSubpath()
-                        
-                        diamond.path = diamondPath
-                        diamond.fillColor = SKColor(red: 0.1, green: 0.1, blue: 0.2, alpha: 0.4)
-                        diamond.strokeColor = .clear
-                        diamond.position = CGPoint(x: x, y: y)
-                        backgroundNode.addChild(diamond)
-                    }
-                }
-                
-                y += patternSize
-            }
-            x += patternSize
-        }
-        
-        addChild(backgroundNode)
-    }
-    
+    // Sets up sound actions (TODO: Add actual sound files to project)
     func setupSounds() {
-        // Create simple sound effects using system sounds
-        // Note: In a real app, you'd want to add actual sound files
         moveSoundAction = SKAction.playSoundFileNamed("move.wav", waitForCompletion: false)
         rotateSoundAction = SKAction.playSoundFileNamed("rotate.wav", waitForCompletion: false)
         lockSoundAction = SKAction.playSoundFileNamed("lock.wav", waitForCompletion: false)
         lineClearSoundAction = SKAction.playSoundFileNamed("lineclear.wav", waitForCompletion: false)
         gameOverSoundAction = SKAction.playSoundFileNamed("gameover.wav", waitForCompletion: false)
         
-        // For now, we'll use placeholder actions that don't crash if files don't exist
+        // Placeholder empty actions if sound files are not available
         moveSoundAction = SKAction.run { }
         rotateSoundAction = SKAction.run { }
         lockSoundAction = SKAction.run { }
@@ -761,10 +653,11 @@ class GameScene: SKScene {
         gameOverSoundAction = SKAction.run { }
     }
     
+    // Show main menu (Title and Tap to Start)
     func showMainMenu() {
         gameState = .menu
         
-        // Create simple white TETRIS title
+        // TETRIS title
         let titleLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         titleLabel.text = "TETRIS"
         titleLabel.fontSize = 48
@@ -789,6 +682,7 @@ class GameScene: SKScene {
         startLabel.run(SKAction.repeatForever(blink))
     }
     
+    // Start a new game
     func startGame() {
         gameState = .playing
         
@@ -800,7 +694,7 @@ class GameScene: SKScene {
         score = 0
         level = 0
         linesCleared = 0
-        updateGravitySpeed() // Set proper NES speed for level 0
+        updateGravitySpeed()
         
         nextKind = pickKind()
         spawnRandomTetromino()
@@ -809,13 +703,13 @@ class GameScene: SKScene {
         updateNextPiece()
     }
     
-    // MARK: - Random Generation
-    
+    // Pseudo-random number generation
     func nextRandom() -> Int {
         rngSeed = (1103515245 &* rngSeed &+ 12345) & 0x7fffffff
         return rngSeed
     }
     
+    // Picks a random tetromino kind
     func pickKind() -> TileColor {
         let r = nextRandom() % 7
         switch r {
@@ -828,9 +722,8 @@ class GameScene: SKScene {
         default: return .z
         }
     }
-
-    // MARK: - Game Logic
     
+    // Spawns a new random tetromino
     func spawnRandomTetromino() {
         let kind = nextKind
         current = makeTetromino(kind: kind)
@@ -839,12 +732,10 @@ class GameScene: SKScene {
         lockTimer = 0
         
         if !canPlace(tetromino: current) {
-            // Check if there are blocks in the top rows (game over condition)
             if isGameOverCondition() {
                 gameOver()
                 return
             } else {
-                // Try spawning higher up
                 current.position.y += 2
                 if !canPlace(tetromino: current) {
                     gameOver()
@@ -855,9 +746,9 @@ class GameScene: SKScene {
         
         updateNextPiece()
     }
-    
+
+    // Checks if the game is over - any blocks in the top 2 rows
     func isGameOverCondition() -> Bool {
-        // Game over if there are blocks in the top 2 rows of the visible area
         for x in 0..<columns {
             for y in (rows-2)..<rows {
                 if board.grid[x][y] != .none {
@@ -868,24 +759,20 @@ class GameScene: SKScene {
         return false
     }
 
+    // Checks if a tetromino can be placed at its current position
     func canPlace(tetromino: Tetromino) -> Bool {
         for p in tetromino.blocks {
             let x = tetromino.position.x + p.x
             let y = tetromino.position.y + p.y
             
-            // Check horizontal bounds
             if x < 0 || x >= columns { return false }
-            
-            // Check bottom bound (can't go below y = 0)
             if y < 0 { return false }
-            
-            // Allow pieces to extend above the visible area (y >= rows)
-            // Only check for collisions within the visible game board
             if y < rows && board.grid[x][y] != .none { return false }
         }
         return true
     }
 
+    // Locks the current piece in place and handles line clears
     func lockCurrent() {
         guard gameState == .playing else { return }
         
@@ -897,7 +784,6 @@ class GameScene: SKScene {
             let x = current.position.x + p.x
             let y = current.position.y + p.y
             
-            // Check if this block is above the visible game area
             if y >= rows {
                 hasBlocksAboveBoard = true
             }
@@ -930,6 +816,7 @@ class GameScene: SKScene {
         updateUI()
     }
     
+    // Updates score, level, and lines labels
     func updateLevel() {
         let newLevel = linesCleared / 10
         if newLevel != level {
@@ -938,8 +825,8 @@ class GameScene: SKScene {
         }
     }
     
+    // Updates gravity speed based on current level
     func updateGravitySpeed() {
-        // NES Tetris gravity table (frames per gridcell at 60 FPS)
         let framesPerGridcell: Int
         switch level {
         case 0: framesPerGridcell = 48
@@ -959,10 +846,10 @@ class GameScene: SKScene {
         default: framesPerGridcell = 1 // Level 29+
         }
         
-        // Convert frames at 60 FPS to time interval
         gravityInterval = Double(framesPerGridcell) / 60.0
     }
 
+    // Handles line clears, scoring, and animations
     func handleLineClears() -> Int {
         let full = board.findFullLines()
         guard !full.isEmpty else { return 0 }
@@ -992,10 +879,10 @@ class GameScene: SKScene {
         return count
     }
     
+    // Animates line clears with a flash effect
     func animateLineClears(lines: [Int], completion: @escaping () -> Void) {
         var flashNodes: [SKSpriteNode] = []
         
-        // Create flash overlay for cleared lines
         for y in lines {
             for x in 0..<columns {
                 let flash = SKSpriteNode(color: .white, size: CGSize(width: blockSize, height: blockSize))
@@ -1025,8 +912,8 @@ class GameScene: SKScene {
         }
     }
     
+    // Create "TETRIS!" text effect
     func addTetrisEffect() {
-        // Create "TETRIS!" text effect
         let tetrisLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         tetrisLabel.text = "TETRIS!"
         tetrisLabel.fontSize = 32
@@ -1054,6 +941,7 @@ class GameScene: SKScene {
         }
     }
 
+    // Game State Management
     func gameOver() {
         gameState = .gameOver
         run(gameOverSoundAction)
@@ -1093,6 +981,7 @@ class GameScene: SKScene {
         restartLabel.run(SKAction.repeatForever(blink))
     }
     
+    // Restart the game from game over state
     func restartGame() {
         // Remove game over labels
         childNode(withName: "gameOver")?.removeFromParent()
@@ -1109,10 +998,10 @@ class GameScene: SKScene {
         startGame()
     }
     
+    // Pause and Resume
     func pauseGame() {
         gameState = .paused
         
-        // Update pause button to play triangle
         if let pauseButton = uiNode.childNode(withName: "pauseButton") {
             // Remove pause bars
             pauseButton.childNode(withName: "leftBar")?.removeFromParent()
@@ -1149,7 +1038,6 @@ class GameScene: SKScene {
     func resumeGame() {
         gameState = .playing
         
-        // Update pause button back to pause symbol
         if let pauseButton = uiNode.childNode(withName: "pauseButton") {
             // Remove play triangle
             pauseButton.childNode(withName: "playTriangle")?.removeFromParent()
@@ -1173,8 +1061,7 @@ class GameScene: SKScene {
         childNode(withName: "resumeLabel")?.removeFromParent()
     }
 
-    // MARK: - Rendering
-    
+    // Renders a grid position (x,y) to a CGPoint in the scene
     func pointFor(x: Int, y: Int) -> CGPoint {
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
@@ -1184,8 +1071,8 @@ class GameScene: SKScene {
         )
     }
     
+    // Clear all pieces from the board grid
     func clearBoard() {
-        // Clear all pieces from the board grid
         for x in 0..<columns {
             for y in 0..<rows {
                 board.set(.none, at: x, y: y)
@@ -1193,8 +1080,8 @@ class GameScene: SKScene {
         }
     }
     
+    // Draws the entire board, including locked pieces and current piece
     func drawBoard() {
-        // Only redraw what's necessary for better performance
         boardNode.enumerateChildNodes(withName: "tile") { node, _ in
             node.removeFromParent()
         }
@@ -1242,6 +1129,7 @@ class GameScene: SKScene {
         }
     }
     
+    // Draws the current falling tetromino
     func drawCurrentPiece() {
         boardNode.enumerateChildNodes(withName: "currentPiece") { node, _ in
             node.removeFromParent()
@@ -1259,24 +1147,22 @@ class GameScene: SKScene {
         }
     }
     
+    // Creates a block with 3D effect
     func createBlock(color: SKColor) -> SKSpriteNode {
         let block = SKSpriteNode(color: color, size: CGSize(width: blockSize-2, height: blockSize-2))
         
         // Add top highlight for 3D effect
-        let highlight = SKSpriteNode(color: blendColor(color, with: .white, fraction: 0.3),
-                                   size: CGSize(width: blockSize-2, height: 3))
+        let highlight = SKSpriteNode(color: blendColor(color, with: .white, fraction: 0.3), size: CGSize(width: blockSize-2, height: 3))
         highlight.position = CGPoint(x: 0, y: (blockSize-2)/2 - 1.5)
         block.addChild(highlight)
         
         // Add side shadow
-        let shadow = SKSpriteNode(color: blendColor(color, with: .black, fraction: 0.3),
-                                size: CGSize(width: 3, height: blockSize-2))
+        let shadow = SKSpriteNode(color: blendColor(color, with: .black, fraction: 0.3), size: CGSize(width: 3, height: blockSize-2))
         shadow.position = CGPoint(x: (blockSize-2)/2 - 1.5, y: 0)
         block.addChild(shadow)
         
         // Add border
-        let border = SKShapeNode(rect: CGRect(x: -blockSize/2 + 1, y: -blockSize/2 + 1,
-                                            width: blockSize-2, height: blockSize-2))
+        let border = SKShapeNode(rect: CGRect(x: -blockSize/2 + 1, y: -blockSize/2 + 1, width: blockSize-2, height: blockSize-2))
         border.strokeColor = .white
         border.lineWidth = 0.5
         border.fillColor = .clear
@@ -1285,13 +1171,11 @@ class GameScene: SKScene {
         return block
     }
     
+    // Draws the next piece in the preview box
     func updateNextPiece() {
         nextPieceNode.removeAllChildren()
         
         let nextTetromino = makeTetromino(kind: nextKind)
-        
-        // Scale to fit box: 100px wide box should fit 4-wide I-piece perfectly
-        // Leave some padding, so use 80px for 4 blocks = 20px per block
         let nextBlockSize: CGFloat = 20
         
         for p in nextTetromino.blocks {
@@ -1306,22 +1190,19 @@ class GameScene: SKScene {
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize - nextBlockSize/2, y: CGFloat(p.y) * nextBlockSize)
                 default:
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
-
-
-                
             }
             nextPieceNode.addChild(tile)
         }
     }
     
+    // Updates score, level, and lines labels
     func updateUI() {
         scoreLabel.text = "SCORE: \(score)"
         levelLabel.text = String(format: "LEVEL: %02d", level) // Two-digit format like NES
         linesLabel.text = "LINES: \(linesCleared)"
     }
 
-    // MARK: - Movement and Controls
-    
+    // Movement and Rotation Attempts
     func attemptMove(dx: Int, dy: Int) -> Bool {
         guard gameState == .playing else { return false }
         
@@ -1353,6 +1234,7 @@ class GameScene: SKScene {
         return false
     }
     
+    // Attempts to rotate the current piece clockwise
     func attemptRotate() -> Bool {
         guard gameState == .playing else { return false }
         
@@ -1384,6 +1266,7 @@ class GameScene: SKScene {
         return false
     }
     
+    // Attempts to rotate the current piece counter-clockwise
     func attemptRotateCounterClockwise() -> Bool {
         guard gameState == .playing else { return false }
         
@@ -1392,12 +1275,12 @@ class GameScene: SKScene {
         
         // Basic wall kick attempts
         let kickTests = [
-            Point(x: 0, y: 0),   // No kick
-            Point(x: -1, y: 0),  // Left kick
-            Point(x: 1, y: 0),   // Right kick
-            Point(x: 0, y: 1),   // Up kick
-            Point(x: -1, y: 1),  // Left-up kick
-            Point(x: 1, y: 1)    // Right-up kick
+            Point(x: 0, y: 0),
+            Point(x: -1, y: 0),
+            Point(x: 1, y: 0),
+            Point(x: 0, y: 1),
+            Point(x: -1, y: 1),
+            Point(x: 1, y: 1)
         ]
         
         for kick in kickTests {
@@ -1415,6 +1298,7 @@ class GameScene: SKScene {
         return false
     }
     
+    // Performs a hard drop of the current piece
     func hardDrop() {
         guard gameState == .playing else { return }
         
@@ -1428,9 +1312,8 @@ class GameScene: SKScene {
         
         lockCurrent()
     }
-
-    // MARK: - Touch Input
     
+    // Touch Handling
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -1454,6 +1337,7 @@ class GameScene: SKScene {
         }
     }
     
+    // Track button press states for auto-repeat
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -1467,21 +1351,22 @@ class GameScene: SKScene {
         }
     }
     
+    // Resets button press states
     func resetButtonStates() {
         leftButtonPressed = false
         rightButtonPressed = false
         downButtonPressed = false
     }
     
+    // Handles auto-repeat for D-pad buttons
     func handleButtonAutoRepeat(currentTime: TimeInterval) {
         // Left button auto-repeat
         if leftButtonPressed && (currentTime - lastLeftRepeat) > buttonRepeatDelay {
             if (currentTime - lastLeftRepeat) > (buttonRepeatDelay + leftRightRepeatRate) {
                 let success = attemptMove(dx: -1, dy: 0)
                 if success {
-                    lastLeftRepeat = currentTime - buttonRepeatDelay // Adjust for consistent timing
+                    lastLeftRepeat = currentTime - buttonRepeatDelay
                 } else {
-                    // If move failed (piece is blocked), stop auto-repeat for left
                     leftButtonPressed = false
                 }
             }
@@ -1494,7 +1379,6 @@ class GameScene: SKScene {
                 if success {
                     lastRightRepeat = currentTime - buttonRepeatDelay
                 } else {
-                    // If move failed (piece is blocked), stop auto-repeat for right
                     rightButtonPressed = false
                 }
             }
@@ -1507,13 +1391,13 @@ class GameScene: SKScene {
                 if success {
                     lastDownRepeat = currentTime - buttonRepeatDelay
                 } else {
-                    // If move failed (piece is blocked), stop auto-repeat for down
                     downButtonPressed = false
                 }
             }
         }
     }
     
+    // Handles input on control buttons
     func handleControlInput(_ location: CGPoint) -> Bool {
         // Check pause button
         let pauseButton = uiNode.childNode(withName: "pauseButton")
@@ -1561,19 +1445,20 @@ class GameScene: SKScene {
         return false
     }
     
+    // Handles touches in the game area (not on buttons)
     func handleGameTouch(_ location: CGPoint) {
-        // Only handle game touches if they're inside the game area
         if !isLocationInGameArea(location) {
             return
         }
         
-        // Quick tap for rotation (fallback if not using buttons)
+        // Quick tap for rotation
         if abs(location.x - touchStartLocation.x) < 20 && abs(location.y - touchStartLocation.y) < 20 {
             // This will be handled in touchesEnded if it's a quick tap
             return
         }
     }
     
+    // Checks if a touch location is within the game area
     func isLocationInGameArea(_ location: CGPoint) -> Bool {
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
@@ -1586,8 +1471,8 @@ class GameScene: SKScene {
                location.y >= gameAreaBottom && location.y <= gameAreaTop
     }
     
+    // Handles touch gestures like swipes and long presses
     func handleTouchGesture(start: CGPoint, end: CGPoint, duration: TimeInterval) {
-        // Only handle gesture if it started in the game area
         if !isLocationInGameArea(start) {
             return
         }
@@ -1628,9 +1513,8 @@ class GameScene: SKScene {
             _ = attemptMove(dx: 0, dy: -1)
         }
     }
-
-    // MARK: - Game Loop
     
+    // Game Loop
     override func update(_ currentTime: TimeInterval) {
         guard gameState == .playing else { return }
         
