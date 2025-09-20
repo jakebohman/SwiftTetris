@@ -315,12 +315,13 @@ class GameScene: SKScene {
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
         
-        // Add Nintendo branding on controller (positioned so "endo" is visible)
+        // Add Nintendo branding on controller - positioned at right edge just under controller top
+        let actualControllerTop = -screenHeight/2 + controllerHeight
         let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nintendoLabel.text = "Nintendo"
         nintendoLabel.fontSize = 18
         nintendoLabel.fontColor = .red
-        nintendoLabel.position = CGPoint(x: boardWidth/2 - 10, y: actualControllerTop - 25) // Just under controller top, slightly right
+        nintendoLabel.position = CGPoint(x: screenWidth/2 - 20, y: actualControllerTop - 25) // Right edge of screen, under controller top
         nintendoLabel.horizontalAlignmentMode = .right
         nintendoLabel.zPosition = -13 // Above controller but below game area
         addChild(nintendoLabel)
@@ -429,13 +430,14 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         
         // Create NES-style D-pad with cross shape and white border
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 30)
+        // Position higher so top extends behind game area and is hidden
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 + 20)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
         
-        // D-pad buttons positioned to maintain original left/right edge positions
-        let dpadOffset: CGFloat = 60 // Increased to match bigger D-pad while maintaining edge positions
+        // D-pad buttons positioned in center of each quadrant for bigger D-pad
+        let dpadOffset: CGFloat = 80 // Increased for bigger D-pad with arrows in quadrant centers
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
@@ -484,8 +486,8 @@ class GameScene: SKScene {
         let buttonNode = SKNode()
         
         // No background - the cross provides the background
-        // Create equilateral triangle arrows
-        let triangleSize: CGFloat = 12
+        // Create bigger equilateral triangle arrows for larger D-pad quadrants
+        let triangleSize: CGFloat = 18
         let triangle: SKShapeNode
         
         switch direction {
@@ -570,10 +572,10 @@ class GameScene: SKScene {
     func createDpadCross() -> SKNode {
         let crossNode = SKNode()
         
-        // NES D-pad dimensions - made bigger to maintain original left/right edges
-        let armLength: CGFloat = 140 // Increased to make D-pad bigger
-        let armWidth: CGFloat = 40  // Increased proportionally
-        let centerSize: CGFloat = 40 // Increased proportionally
+        // NES D-pad dimensions - made much bigger with arrows in quadrant centers
+        let armLength: CGFloat = 180 // Much bigger to accommodate quadrant-centered arrows
+        let armWidth: CGFloat = 50   // Increased proportionally
+        let centerSize: CGFloat = 50 // Increased proportionally
         
         // Horizontal arm of the cross (no internal stroke to avoid white lines)
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armLength/2, y: -armWidth/2, width: armLength, height: armWidth))
