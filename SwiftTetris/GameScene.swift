@@ -896,12 +896,13 @@ class GameScene: SKScene {
         guard !full.isEmpty else { return 0 }
         
         let count = full.count
-        // NES scoring system
+        // NES scoring system (use level + 1 for scoring multiplier)
+        let scoringLevel = level + 1
         switch count {
-        case 1: score += 40 * level
-        case 2: score += 100 * level
-        case 3: score += 300 * level
-        case 4: score += 1200 * level
+        case 1: score += 40 * scoringLevel
+        case 2: score += 100 * scoringLevel
+        case 3: score += 300 * scoringLevel
+        case 4: score += 1200 * scoringLevel
         default: break
         }
         
@@ -909,8 +910,8 @@ class GameScene: SKScene {
         
         // Animate line clearing
         animateLineClears(lines: full) {
-            // Clear lines from bottom to top after animation
-            for y in full.sorted() {
+            // Clear lines from top to bottom after animation to maintain proper indexing
+            for y in full.sorted(by: >) {
                 self.board.clearLine(y)
             }
             self.drawBoard()
