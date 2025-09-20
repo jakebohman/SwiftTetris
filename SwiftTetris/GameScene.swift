@@ -316,7 +316,6 @@ class GameScene: SKScene {
         addChild(controllerShadow)
         
         // Add Nintendo branding on controller - positioned at right edge just under controller top
-        let actualControllerTop = -screenHeight/2 + controllerHeight
         let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nintendoLabel.text = "Nintendo"
         nintendoLabel.fontSize = 18
