@@ -284,6 +284,9 @@ class GameScene: SKScene {
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
         
+        // Add classic NES pattern background
+        createNESPatternBackground(screenWidth: screenWidth, screenHeight: screenHeight, boardWidth: boardWidth, boardHeight: boardHeight)
+        
         // Add NES controller-style background covering entire bottom area
         let controllerTop = -boardHeight/2 - 10 // Controller starts 10px below game area
         let originalHeight = controllerTop - (-screenHeight/2) // Original height from game bottom to screen bottom
@@ -314,10 +317,6 @@ class GameScene: SKScene {
         controllerShadow.strokeColor = .clear
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
-        
-        // Add circuit board pattern background (behind game area but avoiding UI elements)
-        createCircuitBoardBackground(screenWidth: screenWidth, screenHeight: screenHeight, 
-                                   boardWidth: boardWidth, boardHeight: boardHeight)
         
         // Add Nintendo branding on controller - positioned at right edge just under controller top
         let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -676,100 +675,73 @@ class GameScene: SKScene {
         return triangle
     }
     
-    func createCircuitBoardBackground(screenWidth: CGFloat, screenHeight: CGFloat, 
-                                    boardWidth: CGFloat, boardHeight: CGFloat) {
-        // Create circuit board pattern background
-        let circuitBackground = SKNode()
-        circuitBackground.zPosition = -20 // Far behind everything
+    func createNESPatternBackground(screenWidth: CGFloat, screenHeight: CGFloat, boardWidth: CGFloat, boardHeight: CGFloat) {
+        let backgroundNode = SKNode()
+        backgroundNode.name = "nesBackground"
+        backgroundNode.zPosition = -20 // Far behind everything
         
-        // Dark green PCB color
-        let pcbColor = SKColor(red: 0.1, green: 0.2, blue: 0.1, alpha: 0.3)
-        let traceColor = SKColor(red: 0.2, green: 0.4, blue: 0.2, alpha: 0.4)
+        // Classic NES diamond/dot pattern
+        let patternSize: CGFloat = 24
+        let dotSize: CGFloat = 2
+        let diamondSize: CGFloat = 3
         
-        // Main background areas (avoid score/next piece areas)
-        let leftArea = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
-                                              width: screenWidth/2 - boardWidth/4, height: screenHeight))
-        leftArea.fillColor = pcbColor
-        leftArea.strokeColor = .clear
-        circuitBackground.addChild(leftArea)
+        // Create pattern across entire screen, avoiding UI areas
+        let startX = -screenWidth/2
+        let endX = screenWidth/2
+        let startY = -screenHeight/2
+        let endY = screenHeight/2
         
-        let rightArea = SKShapeNode(rect: CGRect(x: boardWidth/4, y: -screenHeight/2, 
-                                               width: screenWidth/2 - boardWidth/4, height: screenHeight))
-        rightArea.fillColor = pcbColor
-        rightArea.strokeColor = .clear
-        circuitBackground.addChild(rightArea)
+        // Define exclusion zones for score and next boxes
+        let scoreBoxLeft = -boardWidth/2 - 2
+        let scoreBoxRight = boardWidth/2 - 99 // Next box area
+        let scoreBoxTop = boardHeight/2 + 115 // Above boxes
+        let scoreBoxBottom = boardHeight/2 - 35 // Below boxes
         
-        // Top area behind game (but below UI elements)
-        let topArea = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 20, y: boardHeight/2 + 10, 
-                                             width: boardWidth + 40, height: 15))
-        topArea.fillColor = pcbColor
-        topArea.strokeColor = .clear
-        circuitBackground.addChild(topArea)
-        
-        // Add circuit traces - horizontal lines
-        for i in 0..<8 {
-            let y = -screenHeight/2 + CGFloat(i) * (screenHeight / 8)
-            
-            // Left side traces
-            let leftTrace = SKShapeNode(rect: CGRect(x: -screenWidth/2 + 10, y: y, 
-                                                   width: screenWidth/2 - boardWidth/4 - 20, height: 2))
-            leftTrace.fillColor = traceColor
-            leftTrace.strokeColor = .clear
-            circuitBackground.addChild(leftTrace)
-            
-            // Right side traces
-            let rightTrace = SKShapeNode(rect: CGRect(x: boardWidth/4 + 10, y: y, 
-                                                    width: screenWidth/2 - boardWidth/4 - 20, height: 2))
-            rightTrace.fillColor = traceColor
-            rightTrace.strokeColor = .clear
-            circuitBackground.addChild(rightTrace)
+        var x = startX
+        while x < endX {
+            var y = startY
+            while y < endY {
+                // Skip areas where score and next boxes are located
+                let inScoreArea = (x >= scoreBoxLeft && x <= scoreBoxRight && 
+                                 y >= scoreBoxBottom && y <= scoreBoxTop)
+                
+                if !inScoreArea {
+                    // Alternate between dots and small diamonds
+                    let patternX = Int(x / patternSize) % 2
+                    let patternY = Int(y / patternSize) % 2
+                    
+                    if (patternX + patternY) % 2 == 0 {
+                        // Create small dot
+                        let dot = SKShapeNode(circleOfRadius: dotSize/2)
+                        dot.fillColor = SKColor(red: 0.15, green: 0.15, blue: 0.25, alpha: 0.6)
+                        dot.strokeColor = .clear
+                        dot.position = CGPoint(x: x, y: y)
+                        backgroundNode.addChild(dot)
+                    } else {
+                        // Create small diamond
+                        let diamond = SKShapeNode()
+                        let diamondPath = CGMutablePath()
+                        let half = diamondSize / 2
+                        diamondPath.move(to: CGPoint(x: 0, y: half))
+                        diamondPath.addLine(to: CGPoint(x: half, y: 0))
+                        diamondPath.addLine(to: CGPoint(x: 0, y: -half))
+                        diamondPath.addLine(to: CGPoint(x: -half, y: 0))
+                        diamondPath.closeSubpath()
+                        
+                        diamond.path = diamondPath
+                        diamond.fillColor = SKColor(red: 0.1, green: 0.1, blue: 0.2, alpha: 0.4)
+                        diamond.strokeColor = .clear
+                        diamond.position = CGPoint(x: x, y: y)
+                        backgroundNode.addChild(diamond)
+                    }
+                }
+                
+                y += patternSize
+            }
+            x += patternSize
         }
         
-        // Add circuit traces - vertical lines
-        for i in 0..<6 {
-            let leftX = -screenWidth/2 + 20 + CGFloat(i) * 30
-            let rightX = boardWidth/4 + 20 + CGFloat(i) * 30
-            
-            if leftX < -boardWidth/4 {
-                let leftVertTrace = SKShapeNode(rect: CGRect(x: leftX, y: -screenHeight/2 + 10, 
-                                                           width: 2, height: screenHeight - 20))
-                leftVertTrace.fillColor = traceColor
-                leftVertTrace.strokeColor = .clear
-                circuitBackground.addChild(leftVertTrace)
-            }
-            
-            if rightX < screenWidth/2 - 10 {
-                let rightVertTrace = SKShapeNode(rect: CGRect(x: rightX, y: -screenHeight/2 + 10, 
-                                                            width: 2, height: screenHeight - 20))
-                rightVertTrace.fillColor = traceColor
-                rightVertTrace.strokeColor = .clear
-                circuitBackground.addChild(rightVertTrace)
-            }
-        }
-        
-        // Add small circuit components (resistors, capacitors)
-        for i in 0..<12 {
-            let leftX = -screenWidth/2 + 15 + CGFloat(i % 4) * 40
-            let rightX = boardWidth/4 + 15 + CGFloat(i % 4) * 40
-            let y = -screenHeight/2 + 30 + CGFloat(i / 4) * (screenHeight / 4)
-            
-            // Small rectangular components
-            if leftX < -boardWidth/4 {
-                let leftComponent = SKShapeNode(rect: CGRect(x: leftX, y: y, width: 8, height: 4))
-                leftComponent.fillColor = SKColor(red: 0.3, green: 0.3, blue: 0.1, alpha: 0.6)
-                leftComponent.strokeColor = .clear
-                circuitBackground.addChild(leftComponent)
-            }
-            
-            if rightX < screenWidth/2 - 15 {
-                let rightComponent = SKShapeNode(rect: CGRect(x: rightX, y: y, width: 8, height: 4))
-                rightComponent.fillColor = SKColor(red: 0.3, green: 0.3, blue: 0.1, alpha: 0.6)
-                rightComponent.strokeColor = .clear
-                circuitBackground.addChild(rightComponent)
-            }
-        }
-        
-        addChild(circuitBackground)
+        addChild(backgroundNode)
     }
     
     func setupSounds() {
