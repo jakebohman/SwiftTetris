@@ -542,9 +542,9 @@ class GameScene: SKScene {
     func createActionButton(letter: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // Off-white/cream rounded square background - smaller
-        let squareSize: CGFloat = 50
-        let cornerRadius: CGFloat = 8
+        // Off-white/cream rounded square background - comfortable size for button
+        let squareSize: CGFloat = 60
+        let cornerRadius: CGFloat = 5
         let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize), cornerRadius: cornerRadius)
         let creamColor = SKColor(red: 0.95, green: 0.95, blue: 0.9, alpha: 1.0)
         square.fillColor = creamColor
