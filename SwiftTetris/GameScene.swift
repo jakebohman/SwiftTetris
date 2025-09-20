@@ -433,7 +433,7 @@ class GameScene: SKScene {
         let dpadCenter = CGPoint(x: -screenWidth/4, y: -(boardHeight + screenHeight) / 4 + 25)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
-        dpadCrossBackground.zPosition = -2 // Behind game area background (-1) to hide top portion
+        dpadCrossBackground.zPosition = -10 // Behind game area background (-1) to hide top portion
         uiNode.addChild(dpadCrossBackground)
         
         // D-pad buttons positioned in center of each square cross arm
@@ -443,7 +443,7 @@ class GameScene: SKScene {
         let upButton = createDpadButton(direction: "up")
         upButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y + dpadOffset)
         upButton.name = "upButton"
-        upButton.zPosition = -2 // Behind game area background (-1) to hide the arrow
+        upButton.zPosition = -9 // Behind game area background (-1) to hide the arrow
         uiNode.addChild(upButton)
         
         // Down button
