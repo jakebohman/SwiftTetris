@@ -362,12 +362,8 @@ class GameScene: SKScene {
         nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 20)
         
         // Add pause button - positioned at very top right, above Next box, slightly left
-        let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
-        pauseButton.text = "II"
-        pauseButton.fontSize = 20 // Made bigger
-        pauseButton.fontColor = .yellow
+        let pauseButton = createPauseButton()
         pauseButton.position = CGPoint(x: screenWidth/2 - 50, y: boardHeight/2 + 100)
-        pauseButton.horizontalAlignmentMode = .center
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
         
@@ -506,6 +502,43 @@ class GameScene: SKScene {
         buttonNode.addChild(label)
         
         return buttonNode
+    }
+    
+    func createPauseButton() -> SKNode {
+        let buttonNode = SKNode()
+        
+        // Create pause symbol (two vertical bars)
+        let leftBar = SKShapeNode(rect: CGRect(x: -8, y: -10, width: 4, height: 20))
+        leftBar.fillColor = .yellow
+        leftBar.strokeColor = .clear
+        leftBar.name = "leftBar"
+        
+        let rightBar = SKShapeNode(rect: CGRect(x: 4, y: -10, width: 4, height: 20))
+        rightBar.fillColor = .yellow
+        rightBar.strokeColor = .clear
+        rightBar.name = "rightBar"
+        
+        buttonNode.addChild(leftBar)
+        buttonNode.addChild(rightBar)
+        
+        return buttonNode
+    }
+    
+    func createPlayTriangle() -> SKShapeNode {
+        // Create right-pointing yellow triangle
+        let triangleSize: CGFloat = 12
+        let trianglePath = CGMutablePath()
+        trianglePath.move(to: CGPoint(x: triangleSize, y: 0))
+        trianglePath.addLine(to: CGPoint(x: -triangleSize/2, y: triangleSize * 0.866))
+        trianglePath.addLine(to: CGPoint(x: -triangleSize/2, y: -triangleSize * 0.866))
+        trianglePath.closeSubpath()
+        
+        let triangle = SKShapeNode(path: trianglePath)
+        triangle.fillColor = .yellow
+        triangle.strokeColor = .clear
+        triangle.name = "playTriangle"
+        
+        return triangle
     }
     
     func setupSounds() {
@@ -852,8 +885,14 @@ class GameScene: SKScene {
         gameState = .paused
         
         // Update pause button to play triangle
-        if let pauseButton = uiNode.childNode(withName: "pauseButton") as? SKLabelNode {
-            pauseButton.text = "▶"
+        if let pauseButton = uiNode.childNode(withName: "pauseButton") {
+            // Remove pause bars
+            pauseButton.childNode(withName: "leftBar")?.removeFromParent()
+            pauseButton.childNode(withName: "rightBar")?.removeFromParent()
+            
+            // Add play triangle
+            let playTriangle = createPlayTriangle()
+            pauseButton.addChild(playTriangle)
         }
         
         let pauseLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -883,8 +922,23 @@ class GameScene: SKScene {
         gameState = .playing
         
         // Update pause button back to pause symbol
-        if let pauseButton = uiNode.childNode(withName: "pauseButton") as? SKLabelNode {
-            pauseButton.text = "II"
+        if let pauseButton = uiNode.childNode(withName: "pauseButton") {
+            // Remove play triangle
+            pauseButton.childNode(withName: "playTriangle")?.removeFromParent()
+            
+            // Add pause bars back
+            let leftBar = SKShapeNode(rect: CGRect(x: -8, y: -10, width: 4, height: 20))
+            leftBar.fillColor = .yellow
+            leftBar.strokeColor = .clear
+            leftBar.name = "leftBar"
+            
+            let rightBar = SKShapeNode(rect: CGRect(x: 4, y: -10, width: 4, height: 20))
+            rightBar.fillColor = .yellow
+            rightBar.strokeColor = .clear
+            rightBar.name = "rightBar"
+            
+            pauseButton.addChild(leftBar)
+            pauseButton.addChild(rightBar)
         }
         
         childNode(withName: "pauseLabel")?.removeFromParent()
