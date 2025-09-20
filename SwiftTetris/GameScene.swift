@@ -1017,9 +1017,9 @@ class GameScene: SKScene {
 
             switch nextKind {
                 case .i:
-                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize + nextBlockSize)
+                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + nextBlockSize/2, y: CGFloat(p.y) * nextBlockSize + nextBlockSize*2)
                 case .j:
-                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize - nextBlockSize)
+                    tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize - nextBlockSize*2)
                 case .o:
                     tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize - nextBlockSize/2, y: CGFloat(p.y) * nextBlockSize)
                 default:
