@@ -284,23 +284,7 @@ class GameScene: SKScene {
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
         
-        // Add background only below the game area (below where pieces fall)
-        let controlAreaTop = -boardHeight/2 // Bottom of game area
-        let controlAreaHeight = controlAreaTop - (-screenHeight/2) // Height from game bottom to screen bottom
-        let controlBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
-                                                        width: screenWidth, height: controlAreaHeight))
-        controlBackground.fillColor = SKColor(red: 0.3, green: 0.3, blue: 0.35, alpha: 1.0) // Lighter background
-        controlBackground.strokeColor = .clear
-        controlBackground.zPosition = -10 // Put it behind everything else
-        addChild(controlBackground)
-        
-        // Add border above the control area
-        let controlBorder = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: controlAreaTop - 2, 
-                                                   width: screenWidth, height: 2))
-        controlBorder.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0) // Light gray border
-        controlBorder.strokeColor = .clear
-        controlBorder.zPosition = -5 // Above background but below other elements
-        addChild(controlBorder)
+        // Background and border at bottom removed for cleaner appearance
         
         // Board border
         let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
@@ -317,7 +301,7 @@ class GameScene: SKScene {
         scoreLabel.text = "SCORE: 0"
         scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 60)
+        scoreLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 55)
         scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
@@ -325,7 +309,7 @@ class GameScene: SKScene {
         levelLabel.text = "LEVEL: 1"
         levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 35)
+        levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 30)
         levelLabel.horizontalAlignmentMode = .left
         uiNode.addChild(levelLabel)
         
@@ -333,12 +317,12 @@ class GameScene: SKScene {
         linesLabel.text = "LINES: 0"
         linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 10)
+        linesLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 5)
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
         // Score area box - same height as Next box, extending from left to Next box
-        let scoreBoxLeft = -screenWidth/2
+        let scoreBoxLeft = -boardWidth/2 - 2  // Align with game area border
         let scoreBoxRight = boardWidth/2 - 49 - 50 // Next container x minus half Next box width
         let scoreBoxWidth = scoreBoxRight - scoreBoxLeft
         let scoreBox = SKShapeNode(rect: CGRect(x: scoreBoxLeft, y: -35, 
@@ -346,13 +330,13 @@ class GameScene: SKScene {
         scoreBox.strokeColor = .white
         scoreBox.lineWidth = 2
         scoreBox.fillColor = .clear
-        scoreBox.position = CGPoint(x: 0, y: boardHeight/2 + 40) // Same position as Next container
+        scoreBox.position = CGPoint(x: 0, y: boardHeight/2 + 35) // Bottom aligns with game area top
         uiNode.addChild(scoreBox)
         
         // Larger Next piece container to include label and fit 4-wide tetromino
         // Position so right edge of box aligns perfectly with right edge of game area
         let nextContainer = SKNode()
-        nextContainer.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 40)
+        nextContainer.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 35)
         
         // "Next" label at the top of the box
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -375,7 +359,7 @@ class GameScene: SKScene {
         uiNode.addChild(nextContainer)
         
         // Position nextPieceNode inside the box area (below the label)
-        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 25)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 20)
         
         // Add pause button - positioned at very top right, above Next box, slightly left
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -424,7 +408,7 @@ class GameScene: SKScene {
         uiNode.addChild(rightButton)
         
         // A and B buttons aligned with tops of left/right arrows
-        let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY)
+        let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY - 10) // Offset to align tops (70px A/B vs 50px d-pad)
         
         // A button (rotate clockwise) - moderate spacing, aligned with arrow tops
         let aButton = createActionButton(letter: "A")
@@ -544,13 +528,21 @@ class GameScene: SKScene {
     func showMainMenu() {
         gameState = .menu
         
-        let titleLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
-        titleLabel.text = "TETRIS"
-        titleLabel.fontSize = 48
-        titleLabel.fontColor = .white
-        titleLabel.position = CGPoint(x: 0, y: 100)
-        titleLabel.name = "title"
-        addChild(titleLabel)
+        // Create multicolored TETRIS title using tetromino colors
+        let letters = "TETRIS"
+        let colors: [SKColor] = [.purple, .green, .purple, SKColor.red, .cyan, .orange] // T, E, T, R, I, S
+        let letterSpacing: CGFloat = 40
+        let startX: CGFloat = -CGFloat(letters.count - 1) * letterSpacing / 2
+        
+        for (index, letter) in letters.enumerated() {
+            let letterLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+            letterLabel.text = String(letter)
+            letterLabel.fontSize = 48
+            letterLabel.fontColor = colors[index]
+            letterLabel.position = CGPoint(x: startX + CGFloat(index) * letterSpacing, y: 100)
+            letterLabel.name = "title\(index)"
+            addChild(letterLabel)
+        }
         
         let startLabel = SKLabelNode(fontNamed: "Helvetica")
         startLabel.text = "TAP TO START"
@@ -572,7 +564,9 @@ class GameScene: SKScene {
         gameState = .playing
         
         // Remove menu elements
-        childNode(withName: "title")?.removeFromParent()
+        for i in 0..<6 {
+            childNode(withName: "title\(i)")?.removeFromParent()
+        }
         childNode(withName: "startLabel")?.removeFromParent()
         
         // Initialize game
