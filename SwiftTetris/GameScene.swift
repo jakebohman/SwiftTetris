@@ -320,7 +320,7 @@ class GameScene: SKScene {
         nintendoLabel.text = "Nintendo"
         nintendoLabel.fontSize = 18
         nintendoLabel.fontColor = .red
-        nintendoLabel.position = CGPoint(x: screenWidth/2 - 20, y: actualControllerTop - 25) // Right edge of screen, under controller top
+        nintendoLabel.position = CGPoint(x: screenWidth/2 - 10, y: actualControllerTop - 25) // Moved slightly right to show "endo"
         nintendoLabel.horizontalAlignmentMode = .right
         nintendoLabel.zPosition = -13 // Above controller but below game area
         addChild(nintendoLabel)
@@ -429,14 +429,14 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         
         // Create NES-style D-pad with cross shape and white border
-        // Position higher so top extends behind game area and is hidden
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 + 20)
+        // Position so entire cross (including top) is below game area
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 120)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
         
-        // D-pad buttons positioned in center of each quadrant for bigger D-pad
-        let dpadOffset: CGFloat = 80 // Increased for bigger D-pad with arrows in quadrant centers
+        // D-pad buttons positioned in center of each arm of the cross
+        let dpadOffset: CGFloat = 45 // Centered within each 90px arm (half of 180px total length)
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
@@ -465,8 +465,8 @@ class GameScene: SKScene {
         // Update button center for A/B buttons (use right button position as reference)
         let leftRightY = dpadCenter.y
         
-        // A and B buttons aligned with tops of left/right arrows
-        let buttonCenter = CGPoint(x: screenWidth/4, y: leftRightY - 10) // Offset to align tops (70px A/B vs 50px d-pad)
+        // A and B buttons positioned so their tops are below the game area
+        let buttonCenter = CGPoint(x: screenWidth/4, y: -boardHeight/2 - 70) // Position so 70px button tops are below game area
         
         // A button (rotate clockwise) - moderate spacing, aligned with arrow tops
         let aButton = createActionButton(letter: "A")
