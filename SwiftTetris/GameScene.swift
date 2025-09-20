@@ -198,7 +198,7 @@ class GameScene: SKScene {
     
     // Game Stats
     private var score = 0
-    private var level = 1
+    private var level = 0
     private var linesCleared = 0
     
     // Rendering
@@ -358,7 +358,7 @@ class GameScene: SKScene {
         uiNode.addChild(scoreLabel)
         
         levelLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
-        levelLabel.text = "LEVEL: 1"
+        levelLabel.text = "LEVEL: 00"
         levelLabel.fontSize = 16
         levelLabel.fontColor = .white
         levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 30)
@@ -724,11 +724,11 @@ class GameScene: SKScene {
         childNode(withName: "title")?.removeFromParent()
         childNode(withName: "startLabel")?.removeFromParent()
         
-        // Initialize game
+        // Initialize game with NES Tetris starting values
         score = 0
-        level = 1
+        level = 0
         linesCleared = 0
-        gravityInterval = 1.0
+        updateGravitySpeed() // Set proper NES speed for level 0
         
         nextKind = pickKind()
         spawnRandomTetromino()
@@ -859,12 +859,36 @@ class GameScene: SKScene {
     }
     
     func updateLevel() {
-        let newLevel = (linesCleared / 10) + 1
+        let newLevel = linesCleared / 10
         if newLevel != level {
             level = newLevel
-            // NES Tetris gravity frames: Level 0: 48, Level 1: 43, etc.
-            gravityInterval = max(0.1, 1.0 - (Double(level - 1) * 0.1))
+            updateGravitySpeed()
         }
+    }
+    
+    func updateGravitySpeed() {
+        // NES Tetris gravity table (frames per gridcell at 60 FPS)
+        let framesPerGridcell: Int
+        switch level {
+        case 0: framesPerGridcell = 48
+        case 1: framesPerGridcell = 43
+        case 2: framesPerGridcell = 38
+        case 3: framesPerGridcell = 33
+        case 4: framesPerGridcell = 28
+        case 5: framesPerGridcell = 23
+        case 6: framesPerGridcell = 18
+        case 7: framesPerGridcell = 13
+        case 8: framesPerGridcell = 8
+        case 9: framesPerGridcell = 6
+        case 10...12: framesPerGridcell = 5
+        case 13...15: framesPerGridcell = 4
+        case 16...18: framesPerGridcell = 3
+        case 19...28: framesPerGridcell = 2
+        default: framesPerGridcell = 1 // Level 29+
+        }
+        
+        // Convert frames at 60 FPS to time interval
+        gravityInterval = Double(framesPerGridcell) / 60.0
     }
 
     func handleLineClears() -> Int {
@@ -1219,7 +1243,7 @@ class GameScene: SKScene {
     
     func updateUI() {
         scoreLabel.text = "SCORE: \(score)"
-        levelLabel.text = "LEVEL: \(level)"
+        levelLabel.text = String(format: "LEVEL: %02d", level) // Two-digit format like NES
         linesLabel.text = "LINES: \(linesCleared)"
     }
 
