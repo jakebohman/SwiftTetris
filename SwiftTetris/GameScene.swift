@@ -284,13 +284,14 @@ class GameScene: SKScene {
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
         
-        // Add NES controller-style background below the game area
-        let controllerAreaTop = -boardHeight/2 - 10 // Start 10px below game area
-        let controllerAreaHeight = controllerAreaTop - (-screenHeight/2) // Height from game bottom to screen bottom
+        // Add NES controller-style background covering entire bottom area
+        let originalHeight = (-boardHeight/2 - 10) - (-screenHeight/2) // Original height calculation
+        let controllerHeight = originalHeight * 2 // Make it twice as tall
+        let controllerAreaTop = -boardHeight/2 + controllerHeight - 10 // Start higher up
         
-        // Main controller body - rounded rectangle with NES controller styling
-        let controllerBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2 + 20, y: -screenHeight/2 + 20, 
-                                                           width: screenWidth - 40, height: controllerAreaHeight - 40))
+        // Main controller body - full width and height covering entire bottom area
+        let controllerBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
+                                                           width: screenWidth, height: controllerHeight))
         controllerBackground.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.75, alpha: 1.0) // Light gray NES controller color
         controllerBackground.strokeColor = SKColor(red: 0.5, green: 0.5, blue: 0.55, alpha: 1.0) // Darker border
         controllerBackground.lineWidth = 3
@@ -298,16 +299,16 @@ class GameScene: SKScene {
         addChild(controllerBackground)
         
         // Add subtle highlight on top edge for 3D effect
-        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2 + 22, y: controllerAreaTop - 25, 
-                                                          width: screenWidth - 44, height: 4))
+        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: controllerAreaTop - 15, 
+                                                          width: screenWidth, height: 4))
         controllerHighlight.fillColor = SKColor(red: 0.85, green: 0.85, blue: 0.9, alpha: 1.0) // Lighter highlight
         controllerHighlight.strokeColor = .clear
         controllerHighlight.zPosition = -14
         addChild(controllerHighlight)
         
         // Add subtle shadow on bottom edge
-        let controllerShadow = SKShapeNode(rect: CGRect(x: -screenWidth/2 + 22, y: -screenHeight/2 + 22, 
-                                                       width: screenWidth - 44, height: 4))
+        let controllerShadow = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
+                                                       width: screenWidth, height: 4))
         controllerShadow.fillColor = SKColor(red: 0.4, green: 0.4, blue: 0.45, alpha: 1.0) // Darker shadow
         controllerShadow.strokeColor = .clear
         controllerShadow.zPosition = -14
