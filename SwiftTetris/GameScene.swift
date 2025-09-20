@@ -282,12 +282,12 @@ class GameScene: SKScene {
         let screenWidth = self.size.width
         let screenHeight = self.size.height
         
-        // Score, Level, Lines UI - aligned with game area's left edge
+        // Score, Level, Lines UI - aligned with game area's left edge, moved down slightly
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         scoreLabel.text = "SCORE: 0"
         scoreLabel.fontSize = 16
         scoreLabel.fontColor = .white
-        scoreLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 80)
+        scoreLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 60)
         scoreLabel.horizontalAlignmentMode = .left
         uiNode.addChild(scoreLabel)
         
@@ -295,7 +295,7 @@ class GameScene: SKScene {
         levelLabel.text = "LEVEL: 1"
         levelLabel.fontSize = 16
         levelLabel.fontColor = .white
-        levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 50)
+        levelLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 35)
         levelLabel.horizontalAlignmentMode = .left
         uiNode.addChild(levelLabel)
         
@@ -303,11 +303,11 @@ class GameScene: SKScene {
         linesLabel.text = "LINES: 0"
         linesLabel.fontSize = 16
         linesLabel.fontColor = .white
-        linesLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 20)
+        linesLabel.position = CGPoint(x: -boardWidth/2, y: boardHeight/2 + 10)
         linesLabel.horizontalAlignmentMode = .left
         uiNode.addChild(linesLabel)
         
-        // Next piece preview - positioned on top right, above the board
+        // Next piece preview - positioned on top right, above the board with box
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         nextLabel.text = "NEXT"
         nextLabel.fontSize = 14
@@ -315,6 +315,14 @@ class GameScene: SKScene {
         nextLabel.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 80)
         nextLabel.horizontalAlignmentMode = .center
         uiNode.addChild(nextLabel)
+        
+        // Next piece box
+        let nextBox = SKShapeNode(rect: CGRect(x: -40, y: -25, width: 80, height: 50))
+        nextBox.strokeColor = .white
+        nextBox.lineWidth = 2
+        nextBox.fillColor = .clear
+        nextBox.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
+        uiNode.addChild(nextBox)
         
         nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
         
@@ -336,9 +344,9 @@ class GameScene: SKScene {
         let screenHeight = self.size.height
         let boardHeight = CGFloat(rows) * blockSize
         
-        // D-pad below the game area - bigger buttons
+        // D-pad below the game area - moved higher so bottom button is visible
         let dpadSize: CGFloat = 60
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 80)
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 50)
         
         // Left button
         let leftButton = createDpadButton(direction: "left")
@@ -406,26 +414,26 @@ class GameScene: SKScene {
     func createActionButton(letter: String) -> SKNode {
         let buttonNode = SKNode()
         
-        // White square background
-        let squareSize: CGFloat = 50
+        // White square background - bigger
+        let squareSize: CGFloat = 70
         let square = SKShapeNode(rect: CGRect(x: -squareSize/2, y: -squareSize/2, width: squareSize, height: squareSize))
         square.fillColor = .white
         square.strokeColor = .white
         square.lineWidth = 1
         buttonNode.addChild(square)
         
-        // Red circular button
-        let circleRadius: CGFloat = 18
+        // Red circular button - bigger
+        let circleRadius: CGFloat = 25
         let circle = SKShapeNode(circleOfRadius: circleRadius)
         circle.fillColor = .red
         circle.strokeColor = SKColor(red: 0.5, green: 0.0, blue: 0.0, alpha: 1.0)
         circle.lineWidth = 2
         buttonNode.addChild(circle)
         
-        // White letter
+        // White letter - bigger
         let label = SKLabelNode(fontNamed: "Helvetica-Bold")
         label.text = letter
-        label.fontSize = 16
+        label.fontSize = 22
         label.fontColor = .white
         label.verticalAlignmentMode = .center
         label.horizontalAlignmentMode = .center
@@ -580,12 +588,26 @@ class GameScene: SKScene {
         
         run(lockSoundAction)
         
+        // Lock the piece and check if any blocks are above the game area
+        var hasBlocksAboveBoard = false
         for p in current.blocks {
             let x = current.position.x + p.x
             let y = current.position.y + p.y
+            
+            // Check if this block is above the visible game area
+            if y >= rows {
+                hasBlocksAboveBoard = true
+            }
+            
             if x >= 0 && x < columns && y >= 0 && y < rows {
                 board.set(current.kind, at: x, y: y)
             }
+        }
+        
+        // Game over if a resting tetromino has any square above the game area
+        if hasBlocksAboveBoard {
+            gameOver()
+            return
         }
         
         let clearedLines = handleLineClears()
@@ -895,10 +917,11 @@ class GameScene: SKScene {
         nextPieceNode.removeAllChildren()
         
         let nextTetromino = makeTetromino(kind: nextKind)
+        let nextBlockSize = blockSize * 0.6 // Make it bigger (was /3 = 0.33, now 0.6)
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
-                                  size: CGSize(width: blockSize/3, height: blockSize/3))
-            tile.position = CGPoint(x: CGFloat(p.x) * blockSize/3, y: CGFloat(p.y) * blockSize/3)
+                                  size: CGSize(width: nextBlockSize, height: nextBlockSize))
+            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
             nextPieceNode.addChild(tile)
         }
     }
