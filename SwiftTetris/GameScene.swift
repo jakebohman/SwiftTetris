@@ -317,14 +317,31 @@ class GameScene: SKScene {
         uiNode.addChild(nextLabel)
         
         // Next piece box
-        let nextBox = SKShapeNode(rect: CGRect(x: -40, y: -25, width: 80, height: 50))
+        // Larger Next piece container to include label and fit 4-wide tetromino
+        let nextContainer = SKNode()
+        nextContainer.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
+        
+        // "Next" label at the top of the box
+        let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+        nextLabel.text = "NEXT"
+        nextLabel.fontSize = 14
+        nextLabel.fontColor = .white
+        nextLabel.verticalAlignmentMode = .bottom
+        nextLabel.horizontalAlignmentMode = .center
+        nextLabel.position = CGPoint(x: 0, y: 25)
+        nextContainer.addChild(nextLabel)
+        
+        // Larger box to contain both label and 4-wide tetromino (I-piece)
+        let nextBox = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 70))
         nextBox.strokeColor = .white
         nextBox.lineWidth = 2
         nextBox.fillColor = .clear
-        nextBox.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
-        uiNode.addChild(nextBox)
+        nextContainer.addChild(nextBox)
         
-        nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 40)
+        uiNode.addChild(nextContainer)
+        
+        // Position nextPieceNode inside the box area (below the label)
+        nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 25)
         
         // Add pause button - positioned at the top center
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -348,38 +365,42 @@ class GameScene: SKScene {
         let dpadSize: CGFloat = 60
         let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 30)
         
-        // Left button
-        let leftButton = createDpadButton(direction: "left")
-        leftButton.position = CGPoint(x: dpadCenter.x - dpadSize, y: dpadCenter.y)
-        leftButton.name = "leftButton"
-        uiNode.addChild(leftButton)
-        
-        // Right button  
-        let rightButton = createDpadButton(direction: "right")
-        rightButton.position = CGPoint(x: dpadCenter.x + dpadSize, y: dpadCenter.y)
-        rightButton.name = "rightButton"
-        uiNode.addChild(rightButton)
-        
         // Down button
         let downButton = createDpadButton(direction: "down")
         downButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y - dpadSize)
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
+        // Left and right buttons positioned so their bottoms align with top of down button
+        // Button size is 50, so we need to move them down by 25 (half button height)
+        let leftRightY = downButton.position.y + 25 // Top of down button + half button height
+        
+        // Left button
+        let leftButton = createDpadButton(direction: "left")
+        leftButton.position = CGPoint(x: dpadCenter.x - dpadSize, y: leftRightY)
+        leftButton.name = "leftButton"
+        uiNode.addChild(leftButton)
+        
+        // Right button  
+        let rightButton = createDpadButton(direction: "right")
+        rightButton.position = CGPoint(x: dpadCenter.x + dpadSize, y: leftRightY)
+        rightButton.name = "rightButton"
+        uiNode.addChild(rightButton)
+        
         // A and B buttons centered between game area bottom and screen bottom
         let gameAreaBottom = -boardHeight/2
         let screenBottom = -screenHeight/2
         let buttonCenter = CGPoint(x: screenWidth/4, y: (gameAreaBottom + screenBottom) / 2)
         
-        // A button (rotate clockwise)
+        // A button (rotate clockwise) - increased spacing
         let aButton = createActionButton(letter: "A")
-        aButton.position = CGPoint(x: buttonCenter.x + 40, y: buttonCenter.y)
+        aButton.position = CGPoint(x: buttonCenter.x + 60, y: buttonCenter.y)
         aButton.name = "aButton"
         uiNode.addChild(aButton)
         
-        // B button (rotate counter-clockwise) - same level as A button
+        // B button (rotate counter-clockwise) - increased spacing
         let bButton = createActionButton(letter: "B")
-        bButton.position = CGPoint(x: buttonCenter.x - 40, y: buttonCenter.y)
+        bButton.position = CGPoint(x: buttonCenter.x - 60, y: buttonCenter.y)
         bButton.name = "bButton"
         uiNode.addChild(bButton)
     }
@@ -944,7 +965,11 @@ class GameScene: SKScene {
         nextPieceNode.removeAllChildren()
         
         let nextTetromino = makeTetromino(kind: nextKind)
-        let nextBlockSize = blockSize * 0.6 // Make it bigger (was /3 = 0.33, now 0.6)
+        
+        // Scale to fit box: 100px wide box should fit 4-wide I-piece perfectly
+        // Leave some padding, so use 80px for 4 blocks = 20px per block
+        let nextBlockSize: CGFloat = 20
+        
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
                                   size: CGSize(width: nextBlockSize, height: nextBlockSize))
