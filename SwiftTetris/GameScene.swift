@@ -358,8 +358,8 @@ class GameScene: SKScene {
         
         uiNode.addChild(nextContainer)
         
-        // Position nextPieceNode inside the box area (below the label)
-        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 20)
+        // Position nextPieceNode centered in the box area (below the label)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 25)
         
         // Add pause button - positioned at very top right, above Next box, slightly left
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -395,15 +395,15 @@ class GameScene: SKScene {
         // We want left/right bottoms at that level, so left/right centers should be 25 higher
         let leftRightY = downButton.position.y + 50 // Position so bottom corners touch top corners
         
-        // Left button - moved closer to center
+        // Left button - positioned closer with 5px spacing
         let leftButton = createDpadButton(direction: "left")
-        leftButton.position = CGPoint(x: dpadCenter.x - 50, y: leftRightY)
+        leftButton.position = CGPoint(x: dpadCenter.x - 27.5, y: leftRightY)
         leftButton.name = "leftButton"
         uiNode.addChild(leftButton)
         
-        // Right button - moved closer to center
+        // Right button - positioned closer with 5px spacing
         let rightButton = createDpadButton(direction: "right")
-        rightButton.position = CGPoint(x: dpadCenter.x + 50, y: leftRightY)
+        rightButton.position = CGPoint(x: dpadCenter.x + 27.5, y: leftRightY)
         rightButton.name = "rightButton"
         uiNode.addChild(rightButton)
         
@@ -528,21 +528,14 @@ class GameScene: SKScene {
     func showMainMenu() {
         gameState = .menu
         
-        // Create multicolored TETRIS title using tetromino colors
-        let letters = "TETRIS"
-        let colors: [SKColor] = [.purple, .green, .purple, SKColor.red, .cyan, .orange] // T, E, T, R, I, S
-        let letterSpacing: CGFloat = 40
-        let startX: CGFloat = -CGFloat(letters.count - 1) * letterSpacing / 2
-        
-        for (index, letter) in letters.enumerated() {
-            let letterLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
-            letterLabel.text = String(letter)
-            letterLabel.fontSize = 48
-            letterLabel.fontColor = colors[index]
-            letterLabel.position = CGPoint(x: startX + CGFloat(index) * letterSpacing, y: 100)
-            letterLabel.name = "title\(index)"
-            addChild(letterLabel)
-        }
+        // TETRIS title
+        let titleLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+        titleLabel.text = "TETRIS"
+        titleLabel.fontSize = 48
+        titleLabel.fontColor = .white
+        titleLabel.position = CGPoint(x: 0, y: 100)
+        titleLabel.name = "title"
+        addChild(titleLabel)
         
         let startLabel = SKLabelNode(fontNamed: "Helvetica")
         startLabel.text = "TAP TO START"
@@ -564,9 +557,7 @@ class GameScene: SKScene {
         gameState = .playing
         
         // Remove menu elements
-        for i in 0..<6 {
-            childNode(withName: "title\(i)")?.removeFromParent()
-        }
+        childNode(withName: "title")?.removeFromParent()
         childNode(withName: "startLabel")?.removeFromParent()
         
         // Initialize game
