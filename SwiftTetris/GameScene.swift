@@ -1012,32 +1012,11 @@ class GameScene: SKScene {
         // Leave some padding, so use 80px for 4 blocks = 20px per block
         let nextBlockSize: CGFloat = 20
         
-        // Calculate bounds to center the piece both horizontally and vertically
-        let minX = nextTetromino.blocks.map { $0.x }.min() ?? 0
-        let maxX = nextTetromino.blocks.map { $0.x }.max() ?? 0
-        let minY = nextTetromino.blocks.map { $0.y }.min() ?? 0
-        let maxY = nextTetromino.blocks.map { $0.y }.max() ?? 0
-        
-        let pieceWidth = maxX - minX + 1
-        let pieceHeight = maxY - minY + 1
-        
-        // Center horizontally within box edges (-50 to +50)
-        let offsetX = -CGFloat(pieceWidth) * nextBlockSize / 2 + nextBlockSize / 2
-        
-        // Center vertically between Next label bottom and box bottom
-        // Label bottom ≈ y:23, box bottom = y:-35, center = y:-6
-        // But pieces are positioned relative to nextPieceNode at y:25, so offset = -6-25 = -31
-        let labelBottom: CGFloat = 23
-        let boxBottom: CGFloat = -35
-        let verticalCenter = (labelBottom + boxBottom) / 2
-        let nextPieceNodeY: CGFloat = 25 // From setup
-        let offsetY = verticalCenter - nextPieceNodeY - CGFloat(pieceHeight) * nextBlockSize / 2 + nextBlockSize / 2
-        
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
                                   size: CGSize(width: nextBlockSize, height: nextBlockSize))
-            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize,// + offsetX, 
-                                  y: CGFloat(p.y) * nextBlockSize)// + offsetY)
+            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, 
+                                  y: CGFloat(p.y) * nextBlockSize)
             nextPieceNode.addChild(tile)
         }
     }
