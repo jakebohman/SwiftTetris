@@ -285,11 +285,11 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         
         // Add NES controller-style background covering entire bottom area
-        let originalHeight = (-boardHeight/2 - 10) - (-screenHeight/2) // Original height calculation
+        let controllerTop = -boardHeight/2 - 10 // Controller starts 10px below game area
+        let originalHeight = controllerTop - (-screenHeight/2) // Original height from game bottom to screen bottom
         let controllerHeight = originalHeight * 2 // Make it twice as tall
-        let controllerAreaTop = -boardHeight/2 + controllerHeight - 10 // Start higher up
         
-        // Main controller body - full width and height covering entire bottom area
+        // Main controller body - full width, starts below game area
         let controllerBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
                                                            width: screenWidth, height: controllerHeight))
         controllerBackground.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.75, alpha: 1.0) // Light gray NES controller color
@@ -298,8 +298,9 @@ class GameScene: SKScene {
         controllerBackground.zPosition = -15 // Behind everything else
         addChild(controllerBackground)
         
-        // Add subtle highlight on top edge for 3D effect
-        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: controllerAreaTop - 15, 
+        // Add subtle highlight on top edge for 3D effect (at actual controller top)
+        let actualControllerTop = -screenHeight/2 + controllerHeight
+        let controllerHighlight = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: actualControllerTop - 4, 
                                                           width: screenWidth, height: 4))
         controllerHighlight.fillColor = SKColor(red: 0.85, green: 0.85, blue: 0.9, alpha: 1.0) // Lighter highlight
         controllerHighlight.strokeColor = .clear
@@ -314,13 +315,18 @@ class GameScene: SKScene {
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
         
-        // Board border
+        // Board border - positioned above controller
         let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
                                              width: boardWidth + 4, height: boardHeight + 4))
         border.strokeColor = .white
         border.lineWidth = 2
         border.fillColor = .clear
+        border.zPosition = 0 // Above controller background
         boardNode.addChild(border)
+        
+        // Ensure game area nodes are above controller
+        boardNode.zPosition = 0 // Above controller (zPosition -15)
+        uiNode.zPosition = 1 // Above board
         
         // Position UI elements with proper spacing
         
