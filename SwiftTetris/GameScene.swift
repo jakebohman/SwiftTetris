@@ -213,6 +213,17 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
+    // Button auto-repeat functionality
+    private var leftButtonPressed = false
+    private var rightButtonPressed = false
+    private var downButtonPressed = false
+    private var lastLeftRepeat: TimeInterval = 0
+    private var lastRightRepeat: TimeInterval = 0
+    private var lastDownRepeat: TimeInterval = 0
+    private var buttonRepeatDelay: TimeInterval = 0.3 // Initial delay before repeating
+    private var leftRightRepeatRate: TimeInterval = 0.15 // Repeat every 150ms for left/right
+    private var downRepeatRate: TimeInterval = 0.05 // Repeat every 50ms for down (faster)
+    
     // Random number generation
     private var rngSeed = 0xC0FFEE
     
@@ -316,13 +327,14 @@ class GameScene: SKScene {
         nextLabel.text = "NEXT"
         nextLabel.fontSize = 14
         nextLabel.fontColor = .white
-        nextLabel.verticalAlignmentMode = .bottom
+        nextLabel.verticalAlignmentMode = .center
         nextLabel.horizontalAlignmentMode = .center
-        nextLabel.position = CGPoint(x: 0, y: 25)
+        nextLabel.position = CGPoint(x: 0, y: 30)
         nextContainer.addChild(nextLabel)
         
         // Larger box to contain both label and 4-wide tetromino (I-piece)
-        let nextBox = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 70))
+        // Expand height to fully contain the label (fontSize 14 needs about 20px total)
+        let nextBox = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 80))
         nextBox.strokeColor = .white
         nextBox.lineWidth = 2
         nextBox.fillColor = .clear
@@ -333,12 +345,13 @@ class GameScene: SKScene {
         // Position nextPieceNode inside the box area (below the label)
         nextPieceNode.position = CGPoint(x: screenWidth/2 - 80, y: boardHeight/2 + 25)
         
-        // Add pause button - positioned at the top center
+        // Add pause button - positioned to the right of the top nook
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
         pauseButton.text = "PAUSE"
         pauseButton.fontSize = 16
         pauseButton.fontColor = .yellow
-        pauseButton.position = CGPoint(x: 0, y: boardHeight/2 + 120)
+        pauseButton.position = CGPoint(x: boardWidth/2 + 60, y: boardHeight/2 - 20)
+        pauseButton.horizontalAlignmentMode = .center
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
         
@@ -361,9 +374,10 @@ class GameScene: SKScene {
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
-        // Left and right buttons positioned so their bottoms align with top of down button
-        // Button size is 50, so we need to move them down by 25 (half button height)
-        let leftRightY = downButton.position.y + 25 // Top of down button + half button height
+        // Left and right buttons positioned so their bottom corners meet top corners of down button
+        // Button size is 50, so top of down button is at downButton.position.y + 25
+        // We want left/right bottoms at that level, so left/right centers should be 25 higher
+        let leftRightY = downButton.position.y + 50 // Position so bottom corners touch top corners
         
         // Left button
         let leftButton = createDpadButton(direction: "left")
@@ -382,15 +396,15 @@ class GameScene: SKScene {
         let screenBottom = -screenHeight/2
         let buttonCenter = CGPoint(x: screenWidth/4, y: (gameAreaBottom + screenBottom) / 2)
         
-        // A button (rotate clockwise) - increased spacing
+        // A button (rotate clockwise) - moderate spacing between original and current
         let aButton = createActionButton(letter: "A")
-        aButton.position = CGPoint(x: buttonCenter.x + 60, y: buttonCenter.y)
+        aButton.position = CGPoint(x: buttonCenter.x + 50, y: buttonCenter.y)
         aButton.name = "aButton"
         uiNode.addChild(aButton)
         
-        // B button (rotate counter-clockwise) - increased spacing
+        // B button (rotate counter-clockwise) - moderate spacing
         let bButton = createActionButton(letter: "B")
-        bButton.position = CGPoint(x: buttonCenter.x - 60, y: buttonCenter.y)
+        bButton.position = CGPoint(x: buttonCenter.x - 50, y: buttonCenter.y)
         bButton.name = "bButton"
         uiNode.addChild(bButton)
     }
@@ -768,6 +782,10 @@ class GameScene: SKScene {
         gameState = .gameOver
         run(gameOverSoundAction)
         
+        // Clear all tetrominos from the game area
+        clearBoard()
+        drawBoard()
+        
         let gameOverLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         gameOverLabel.text = "GAME OVER"
         gameOverLabel.fontSize = 36
@@ -857,6 +875,15 @@ class GameScene: SKScene {
             x: CGFloat(x) * blockSize - boardWidth/2 + blockSize/2,
             y: CGFloat(y) * blockSize - boardHeight/2 + blockSize/2
         )
+    }
+    
+    func clearBoard() {
+        // Clear all pieces from the board grid
+        for x in 0..<columns {
+            for y in 0..<rows {
+                board.set(.none, at: x, y: y)
+            }
+        }
     }
     
     func drawBoard() {
@@ -960,10 +987,17 @@ class GameScene: SKScene {
         // Leave some padding, so use 80px for 4 blocks = 20px per block
         let nextBlockSize: CGFloat = 20
         
+        // Calculate bounds to center the piece horizontally
+        let minX = nextTetromino.blocks.map { $0.x }.min() ?? 0
+        let maxX = nextTetromino.blocks.map { $0.x }.max() ?? 0
+        let pieceWidth = maxX - minX + 1
+        let offsetX = -CGFloat(pieceWidth) * nextBlockSize / 2 + nextBlockSize / 2
+        
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
                                   size: CGSize(width: nextBlockSize, height: nextBlockSize))
-            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize, y: CGFloat(p.y) * nextBlockSize)
+            tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + offsetX, 
+                                  y: CGFloat(p.y) * nextBlockSize)
             nextPieceNode.addChild(tile)
         }
     }
@@ -1113,8 +1147,43 @@ class GameScene: SKScene {
         let location = touch.location(in: self)
         let duration = CACurrentMediaTime() - lastTouchTime
         
+        // Reset button states when touch ends
+        resetButtonStates()
+        
         if gameState == .playing {
             handleTouchGesture(start: touchStartLocation, end: location, duration: duration)
+        }
+    }
+    
+    func resetButtonStates() {
+        leftButtonPressed = false
+        rightButtonPressed = false
+        downButtonPressed = false
+    }
+    
+    func handleButtonAutoRepeat(currentTime: TimeInterval) {
+        // Left button auto-repeat
+        if leftButtonPressed && (currentTime - lastLeftRepeat) > buttonRepeatDelay {
+            if (currentTime - lastLeftRepeat) > (buttonRepeatDelay + leftRightRepeatRate) {
+                _ = attemptMove(dx: -1, dy: 0)
+                lastLeftRepeat = currentTime - buttonRepeatDelay // Adjust for consistent timing
+            }
+        }
+        
+        // Right button auto-repeat
+        if rightButtonPressed && (currentTime - lastRightRepeat) > buttonRepeatDelay {
+            if (currentTime - lastRightRepeat) > (buttonRepeatDelay + leftRightRepeatRate) {
+                _ = attemptMove(dx: 1, dy: 0)
+                lastRightRepeat = currentTime - buttonRepeatDelay
+            }
+        }
+        
+        // Down button auto-repeat (faster)
+        if downButtonPressed && (currentTime - lastDownRepeat) > buttonRepeatDelay {
+            if (currentTime - lastDownRepeat) > (buttonRepeatDelay + downRepeatRate) {
+                _ = attemptMove(dx: 0, dy: -1)
+                lastDownRepeat = currentTime - buttonRepeatDelay
+            }
         }
     }
     
@@ -1126,17 +1195,29 @@ class GameScene: SKScene {
             return true
         }
         
-        // Check D-pad buttons
+        // Check D-pad buttons with auto-repeat tracking
         if let leftButton = uiNode.childNode(withName: "leftButton"), leftButton.contains(location) {
-            _ = attemptMove(dx: -1, dy: 0)
+            if !leftButtonPressed {
+                leftButtonPressed = true
+                lastLeftRepeat = CACurrentMediaTime()
+                _ = attemptMove(dx: -1, dy: 0)
+            }
             return true
         }
         if let rightButton = uiNode.childNode(withName: "rightButton"), rightButton.contains(location) {
-            _ = attemptMove(dx: 1, dy: 0)
+            if !rightButtonPressed {
+                rightButtonPressed = true
+                lastRightRepeat = CACurrentMediaTime()
+                _ = attemptMove(dx: 1, dy: 0)
+            }
             return true
         }
         if let downButton = uiNode.childNode(withName: "downButton"), downButton.contains(location) {
-            _ = attemptMove(dx: 0, dy: -1)
+            if !downButtonPressed {
+                downButtonPressed = true
+                lastDownRepeat = CACurrentMediaTime()
+                _ = attemptMove(dx: 0, dy: -1)
+            }
             return true
         }
         
@@ -1243,6 +1324,9 @@ class GameScene: SKScene {
                 }
             }
         }
+        
+        // Handle button auto-repeat
+        handleButtonAutoRepeat(currentTime: currentTime)
         
         // Lock delay - give player time to move/rotate before locking
         if lockTimer > 0 && currentTime - lockTimer >= lockDelay {
