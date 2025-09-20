@@ -438,10 +438,11 @@ class GameScene: SKScene {
         // D-pad buttons positioned in center of each square cross arm
         let dpadOffset: CGFloat = 50 // Centered within each square arm section (beyond the center intersection)
         
-        // Up button (will be hidden behind game area but still functional)
+        // Up button (hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
         upButton.position = CGPoint(x: dpadCenter.x, y: dpadCenter.y + dpadOffset)
         upButton.name = "upButton"
+        upButton.zPosition = -2 // Behind game area background (-1) to hide the arrow
         uiNode.addChild(upButton)
         
         // Down button
