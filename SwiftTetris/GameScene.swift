@@ -429,8 +429,8 @@ class GameScene: SKScene {
         let boardHeight = CGFloat(rows) * blockSize
         
         // Create NES-style D-pad with cross shape and white border
-        // Position halfway between bottom of game area and bottom of screen
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -(boardHeight + screenHeight) / 4)
+        // Position so bottom of horizontal bar is halfway between game area bottom and screen bottom
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -(boardHeight + screenHeight) / 4 + 25)
         let dpadCrossBackground = createDpadCross()
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
