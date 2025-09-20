@@ -279,9 +279,21 @@ class GameScene: SKScene {
     }
     
     func setupUI() {
-        // Board border
+        let screenWidth = self.size.width
+        let screenHeight = self.size.height
         let boardWidth = CGFloat(columns) * blockSize
         let boardHeight = CGFloat(rows) * blockSize
+        
+        // Add metallic gray background below game area
+        let controlAreaHeight = screenHeight/2 + boardHeight/2 // Height of area below game board
+        let grayBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, 
+                                                     width: screenWidth, height: controlAreaHeight))
+        grayBackground.fillColor = SKColor(red: 0.7, green: 0.7, blue: 0.75, alpha: 1.0) // Metallic gray
+        grayBackground.strokeColor = .clear
+        grayBackground.zPosition = -10 // Put it behind everything else
+        addChild(grayBackground)
+        
+        // Board border
         let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
                                              width: boardWidth + 4, height: boardHeight + 4))
         border.strokeColor = .white
@@ -290,8 +302,6 @@ class GameScene: SKScene {
         boardNode.addChild(border)
         
         // Position UI elements with proper spacing
-        let screenWidth = self.size.width
-        let screenHeight = self.size.height
         
         // Score, Level, Lines UI - aligned with game area's left edge, moved down slightly
         scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -319,9 +329,9 @@ class GameScene: SKScene {
         uiNode.addChild(linesLabel)
         
         // Larger Next piece container to include label and fit 4-wide tetromino
-        // Position so right edge of box aligns with right edge of game area
+        // Position so right edge of box aligns perfectly with right edge of game area
         let nextContainer = SKNode()
-        nextContainer.position = CGPoint(x: boardWidth/2 - 50, y: boardHeight/2 + 40)
+        nextContainer.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 40)
         
         // "Next" label at the top of the box
         let nextLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -344,14 +354,14 @@ class GameScene: SKScene {
         uiNode.addChild(nextContainer)
         
         // Position nextPieceNode inside the box area (below the label)
-        nextPieceNode.position = CGPoint(x: boardWidth/2 - 50, y: boardHeight/2 + 25)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 25)
         
-        // Add pause button - positioned at very top right, above Next box
+        // Add pause button - positioned at very top right, above Next box, slightly left
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
         pauseButton.text = "PAUSE"
         pauseButton.fontSize = 16
         pauseButton.fontColor = .yellow
-        pauseButton.position = CGPoint(x: screenWidth/2 - 30, y: boardHeight/2 + 100)
+        pauseButton.position = CGPoint(x: screenWidth/2 - 50, y: boardHeight/2 + 100)
         pauseButton.horizontalAlignmentMode = .center
         pauseButton.name = "pauseButton"
         uiNode.addChild(pauseButton)
@@ -988,17 +998,24 @@ class GameScene: SKScene {
         // Leave some padding, so use 80px for 4 blocks = 20px per block
         let nextBlockSize: CGFloat = 20
         
-        // Calculate bounds to center the piece horizontally
+        // Calculate bounds to center the piece both horizontally and vertically
         let minX = nextTetromino.blocks.map { $0.x }.min() ?? 0
         let maxX = nextTetromino.blocks.map { $0.x }.max() ?? 0
+        let minY = nextTetromino.blocks.map { $0.y }.min() ?? 0
+        let maxY = nextTetromino.blocks.map { $0.y }.max() ?? 0
+        
         let pieceWidth = maxX - minX + 1
+        let pieceHeight = maxY - minY + 1
+        
+        // Center horizontally and vertically
         let offsetX = -CGFloat(pieceWidth) * nextBlockSize / 2 + nextBlockSize / 2
+        let offsetY = -CGFloat(pieceHeight) * nextBlockSize / 2 + nextBlockSize / 2
         
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
                                   size: CGSize(width: nextBlockSize, height: nextBlockSize))
             tile.position = CGPoint(x: CGFloat(p.x) * nextBlockSize + offsetX, 
-                                  y: CGFloat(p.y) * nextBlockSize)
+                                  y: CGFloat(p.y) * nextBlockSize + offsetY)
             nextPieceNode.addChild(tile)
         }
     }
