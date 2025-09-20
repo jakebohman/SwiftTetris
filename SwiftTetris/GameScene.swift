@@ -315,6 +315,16 @@ class GameScene: SKScene {
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
         
+        // Add Nintendo branding on controller (positioned so "endo" is visible)
+        let nintendoLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+        nintendoLabel.text = "Nintendo"
+        nintendoLabel.fontSize = 18
+        nintendoLabel.fontColor = .red
+        nintendoLabel.position = CGPoint(x: boardWidth/2 - 30, y: -boardHeight/2 - 40) // Top right of controller area
+        nintendoLabel.horizontalAlignmentMode = .right
+        nintendoLabel.zPosition = -13 // Above controller but below game area
+        addChild(nintendoLabel)
+        
         // Game area background - solid black to cover controller and match screen background
         let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
                                                          width: boardWidth + 4, height: boardHeight + 4))
@@ -425,7 +435,7 @@ class GameScene: SKScene {
         uiNode.addChild(dpadCrossBackground)
         
         // D-pad buttons positioned on the cross arms
-        let dpadOffset: CGFloat = 40 // Distance from center to button center
+        let dpadOffset: CGFloat = 50 // Distance from center to button center (back to original size)
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
@@ -560,34 +570,61 @@ class GameScene: SKScene {
     func createDpadCross() -> SKNode {
         let crossNode = SKNode()
         
-        // NES D-pad dimensions
-        let armLength: CGFloat = 60
-        let armWidth: CGFloat = 20
-        let centerSize: CGFloat = 20
+        // NES D-pad dimensions - made bigger to match original size
+        let armLength: CGFloat = 100
+        let armWidth: CGFloat = 30
+        let centerSize: CGFloat = 30
         
-        // Horizontal arm of the cross
+        // Horizontal arm of the cross (no internal stroke to avoid white lines)
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armLength/2, y: -armWidth/2, width: armLength, height: armWidth))
         horizontalArm.fillColor = .black
-        horizontalArm.strokeColor = .white
-        horizontalArm.lineWidth = 2
+        horizontalArm.strokeColor = .clear // No internal stroke
         horizontalArm.zPosition = -2 // Behind the button arrows
         crossNode.addChild(horizontalArm)
         
-        // Vertical arm of the cross
+        // Vertical arm of the cross (no internal stroke to avoid white lines)
         let verticalArm = SKShapeNode(rect: CGRect(x: -armWidth/2, y: -armLength/2, width: armWidth, height: armLength))
         verticalArm.fillColor = .black
-        verticalArm.strokeColor = .white
-        verticalArm.lineWidth = 2
+        verticalArm.strokeColor = .clear // No internal stroke
         verticalArm.zPosition = -2 // Behind the button arrows
         crossNode.addChild(verticalArm)
         
-        // Center circle to clean up the intersection
+        // Center circle to clean up the intersection (no internal stroke)
         let center = SKShapeNode(circleOfRadius: centerSize/2)
         center.fillColor = .black
-        center.strokeColor = .white
-        center.lineWidth = 2
+        center.strokeColor = .clear // No internal stroke
         center.zPosition = -1 // Above the arms but behind arrows
         crossNode.addChild(center)
+        
+        // Outer border - single white outline around the entire cross shape
+        let outerBorder = SKShapeNode()
+        let borderPath = CGMutablePath()
+        
+        // Create the cross outline path
+        let halfArm = armLength/2
+        let halfWidth = armWidth/2
+        
+        // Start from top-left of vertical arm
+        borderPath.move(to: CGPoint(x: -halfWidth, y: halfArm))
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: halfWidth)) // to horizontal arm top-left
+        borderPath.addLine(to: CGPoint(x: -halfArm, y: halfWidth)) // across to left end
+        borderPath.addLine(to: CGPoint(x: -halfArm, y: -halfWidth)) // down to bottom-left
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfWidth)) // to vertical arm bottom-left
+        borderPath.addLine(to: CGPoint(x: -halfWidth, y: -halfArm)) // down to bottom
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfArm)) // across to bottom-right
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: -halfWidth)) // up to vertical arm bottom-right
+        borderPath.addLine(to: CGPoint(x: halfArm, y: -halfWidth)) // to horizontal arm bottom-right
+        borderPath.addLine(to: CGPoint(x: halfArm, y: halfWidth)) // up to top-right
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfWidth)) // to vertical arm top-right
+        borderPath.addLine(to: CGPoint(x: halfWidth, y: halfArm)) // up to top
+        borderPath.closeSubpath()
+        
+        outerBorder.path = borderPath
+        outerBorder.fillColor = .clear
+        outerBorder.strokeColor = .white
+        outerBorder.lineWidth = 2
+        outerBorder.zPosition = 0 // Above everything else in the cross
+        crossNode.addChild(outerBorder)
         
         return crossNode
     }
