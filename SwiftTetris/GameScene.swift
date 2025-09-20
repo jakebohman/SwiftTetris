@@ -559,13 +559,14 @@ class GameScene: SKScene {
         circle.lineWidth = 2
         buttonNode.addChild(circle)
         
-        // White letter - bigger
+        // Red letter positioned below button, aligned with right edge of square
         let label = SKLabelNode(fontNamed: "Helvetica-Bold")
         label.text = letter
         label.fontSize = 22
-        label.fontColor = .white
-        label.verticalAlignmentMode = .center
-        label.horizontalAlignmentMode = .center
+        label.fontColor = .red
+        label.verticalAlignmentMode = .top
+        label.horizontalAlignmentMode = .right
+        label.position = CGPoint(x: squareSize/2, y: -squareSize/2 - 5) // Right edge, below square
         buttonNode.addChild(label)
         
         return buttonNode
