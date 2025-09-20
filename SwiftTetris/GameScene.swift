@@ -346,7 +346,7 @@ class GameScene: SKScene {
         
         // D-pad below the game area - moved higher so bottom button is visible
         let dpadSize: CGFloat = 60
-        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 50)
+        let dpadCenter = CGPoint(x: -screenWidth/4, y: -boardHeight/2 - 30)
         
         // Left button
         let leftButton = createDpadButton(direction: "left")
@@ -366,8 +366,10 @@ class GameScene: SKScene {
         downButton.name = "downButton"
         uiNode.addChild(downButton)
         
-        // A and B buttons level with d-pad center
-        let buttonCenter = CGPoint(x: screenWidth/4, y: dpadCenter.y)
+        // A and B buttons centered between game area bottom and screen bottom
+        let gameAreaBottom = -boardHeight/2
+        let screenBottom = -screenHeight/2
+        let buttonCenter = CGPoint(x: screenWidth/4, y: (gameAreaBottom + screenBottom) / 2)
         
         // A button (rotate clockwise)
         let aButton = createActionButton(letter: "A")
@@ -393,21 +395,46 @@ class GameScene: SKScene {
         button.lineWidth = 2
         buttonNode.addChild(button)
         
-        // Arrow or direction indicator - using consistent arrow style
-        let arrow = SKLabelNode(fontNamed: "Helvetica-Bold")
-        arrow.fontSize = 24
-        arrow.fontColor = .white
-        arrow.verticalAlignmentMode = .center
-        arrow.horizontalAlignmentMode = .center
+        // Create equilateral triangle arrows
+        let triangleSize: CGFloat = 12
+        let triangle: SKShapeNode
         
         switch direction {
-        case "left": arrow.text = "◄"
-        case "right": arrow.text = "►"
-        case "down": arrow.text = "▼"
-        default: arrow.text = "?"
+        case "left":
+            // Left-pointing equilateral triangle
+            let leftPath = CGMutablePath()
+            leftPath.move(to: CGPoint(x: -triangleSize, y: 0))
+            leftPath.addLine(to: CGPoint(x: triangleSize/2, y: triangleSize * 0.866)) // sqrt(3)/2 for equilateral
+            leftPath.addLine(to: CGPoint(x: triangleSize/2, y: -triangleSize * 0.866))
+            leftPath.closeSubpath()
+            triangle = SKShapeNode(path: leftPath)
+            
+        case "right":
+            // Right-pointing equilateral triangle  
+            let rightPath = CGMutablePath()
+            rightPath.move(to: CGPoint(x: triangleSize, y: 0))
+            rightPath.addLine(to: CGPoint(x: -triangleSize/2, y: triangleSize * 0.866))
+            rightPath.addLine(to: CGPoint(x: -triangleSize/2, y: -triangleSize * 0.866))
+            rightPath.closeSubpath()
+            triangle = SKShapeNode(path: rightPath)
+            
+        case "down":
+            // Down-pointing equilateral triangle
+            let downPath = CGMutablePath()
+            downPath.move(to: CGPoint(x: 0, y: -triangleSize))
+            downPath.addLine(to: CGPoint(x: triangleSize * 0.866, y: triangleSize/2))
+            downPath.addLine(to: CGPoint(x: -triangleSize * 0.866, y: triangleSize/2))
+            downPath.closeSubpath()
+            triangle = SKShapeNode(path: downPath)
+            
+        default:
+            // Default case (shouldn't happen)
+            triangle = SKShapeNode(circleOfRadius: triangleSize)
         }
         
-        buttonNode.addChild(arrow)
+        triangle.fillColor = .white
+        triangle.strokeColor = .clear
+        buttonNode.addChild(triangle)
         return buttonNode
     }
     
@@ -1112,6 +1139,11 @@ class GameScene: SKScene {
     }
     
     func handleGameTouch(_ location: CGPoint) {
+        // Only handle game touches if they're inside the game area
+        if !isLocationInGameArea(location) {
+            return
+        }
+        
         // Quick tap for rotation (fallback if not using buttons)
         if abs(location.x - touchStartLocation.x) < 20 && abs(location.y - touchStartLocation.y) < 20 {
             // This will be handled in touchesEnded if it's a quick tap
@@ -1119,7 +1151,24 @@ class GameScene: SKScene {
         }
     }
     
+    func isLocationInGameArea(_ location: CGPoint) -> Bool {
+        let boardWidth = CGFloat(columns) * blockSize
+        let boardHeight = CGFloat(rows) * blockSize
+        let gameAreaLeft = -boardWidth/2
+        let gameAreaRight = boardWidth/2
+        let gameAreaTop = boardHeight/2
+        let gameAreaBottom = -boardHeight/2
+        
+        return location.x >= gameAreaLeft && location.x <= gameAreaRight &&
+               location.y >= gameAreaBottom && location.y <= gameAreaTop
+    }
+    
     func handleTouchGesture(start: CGPoint, end: CGPoint, duration: TimeInterval) {
+        // Only handle gesture if it started in the game area
+        if !isLocationInGameArea(start) {
+            return
+        }
+        
         let dx = end.x - start.x
         let dy = end.y - start.y
         let distance = sqrt(dx*dx + dy*dy)
