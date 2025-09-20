@@ -551,7 +551,7 @@ class GameScene: SKScene {
         // Horizontal arm of the cross
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armSize/2, y: -armThickness/2, width: armSize, height: armThickness))
         horizontalArm.fillColor = .black
-        horizontalArm.strokeColor = .clean
+        horizontalArm.strokeColor = .clear
         horizontalArm.zPosition = -2
         crossNode.addChild(horizontalArm)
         
