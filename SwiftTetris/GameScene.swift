@@ -320,7 +320,7 @@ class GameScene: SKScene {
         nintendoLabel.text = "Nintendo"
         nintendoLabel.fontSize = 18
         nintendoLabel.fontColor = .red
-        nintendoLabel.position = CGPoint(x: boardWidth/2 - 30, y: -boardHeight/2 - 40) // Top right of controller area
+        nintendoLabel.position = CGPoint(x: boardWidth/2 - 10, y: actualControllerTop - 25) // Just under controller top, slightly right
         nintendoLabel.horizontalAlignmentMode = .right
         nintendoLabel.zPosition = -13 // Above controller but below game area
         addChild(nintendoLabel)
@@ -434,8 +434,8 @@ class GameScene: SKScene {
         dpadCrossBackground.position = dpadCenter
         uiNode.addChild(dpadCrossBackground)
         
-        // D-pad buttons positioned on the cross arms
-        let dpadOffset: CGFloat = 50 // Distance from center to button center (back to original size)
+        // D-pad buttons positioned to maintain original left/right edge positions
+        let dpadOffset: CGFloat = 60 // Increased to match bigger D-pad while maintaining edge positions
         
         // Up button (will be hidden behind game area but still functional)
         let upButton = createDpadButton(direction: "up")
@@ -570,10 +570,10 @@ class GameScene: SKScene {
     func createDpadCross() -> SKNode {
         let crossNode = SKNode()
         
-        // NES D-pad dimensions - made bigger to match original size
-        let armLength: CGFloat = 100
-        let armWidth: CGFloat = 30
-        let centerSize: CGFloat = 30
+        // NES D-pad dimensions - made bigger to maintain original left/right edges
+        let armLength: CGFloat = 140 // Increased to make D-pad bigger
+        let armWidth: CGFloat = 40  // Increased proportionally
+        let centerSize: CGFloat = 40 // Increased proportionally
         
         // Horizontal arm of the cross (no internal stroke to avoid white lines)
         let horizontalArm = SKShapeNode(rect: CGRect(x: -armLength/2, y: -armWidth/2, width: armLength, height: armWidth))
