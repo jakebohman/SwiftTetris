@@ -358,8 +358,8 @@ class GameScene: SKScene {
         
         uiNode.addChild(nextContainer)
         
-        // Position nextPieceNode centered in the box area (below the label)
-        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 25)
+        // Position nextPieceNode inside the box area (below the label)
+        nextPieceNode.position = CGPoint(x: boardWidth/2 - 49, y: boardHeight/2 + 20)
         
         // Add pause button - positioned at very top right, above Next box, slightly left
         let pauseButton = SKLabelNode(fontNamed: "Helvetica-Bold")
@@ -395,15 +395,15 @@ class GameScene: SKScene {
         // We want left/right bottoms at that level, so left/right centers should be 25 higher
         let leftRightY = downButton.position.y + 50 // Position so bottom corners touch top corners
         
-        // Left button - positioned closer with 5px spacing
+        // Left button - moved closer to center
         let leftButton = createDpadButton(direction: "left")
-        leftButton.position = CGPoint(x: dpadCenter.x - 27.5, y: leftRightY)
+        leftButton.position = CGPoint(x: dpadCenter.x - 50, y: leftRightY)
         leftButton.name = "leftButton"
         uiNode.addChild(leftButton)
         
-        // Right button - positioned closer with 5px spacing
+        // Right button - moved closer to center
         let rightButton = createDpadButton(direction: "right")
-        rightButton.position = CGPoint(x: dpadCenter.x + 27.5, y: leftRightY)
+        rightButton.position = CGPoint(x: dpadCenter.x + 50, y: leftRightY)
         rightButton.name = "rightButton"
         uiNode.addChild(rightButton)
         
@@ -528,7 +528,7 @@ class GameScene: SKScene {
     func showMainMenu() {
         gameState = .menu
         
-        // TETRIS title
+        // Create simple white TETRIS title
         let titleLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         titleLabel.text = "TETRIS"
         titleLabel.fontSize = 48
@@ -1031,7 +1031,7 @@ class GameScene: SKScene {
         let boxBottom: CGFloat = -35
         let verticalCenter = (labelBottom + boxBottom) / 2
         let nextPieceNodeY: CGFloat = 25 // From setup
-        let offsetY = verticalCenter - nextPieceNodeY - CGFloat(pieceHeight) * nextBlockSize / 2 + nextBlockSize / 2
+        let offsetY = verticalCenter - nextPieceNodeY - CGFloat(pieceHeight) * nextBlockSize / 2
         
         for p in nextTetromino.blocks {
             let tile = SKSpriteNode(color: nextKind.color, 
