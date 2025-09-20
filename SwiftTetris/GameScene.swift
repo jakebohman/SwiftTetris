@@ -315,6 +315,14 @@ class GameScene: SKScene {
         controllerShadow.zPosition = -14
         addChild(controllerShadow)
         
+        // Game area background - solid black to cover controller and match screen background
+        let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
+                                                         width: boardWidth + 4, height: boardHeight + 4))
+        gameAreaBackground.strokeColor = .clear
+        gameAreaBackground.fillColor = .black // Solid black to match screen background
+        gameAreaBackground.zPosition = -1 // Above controller but below board elements
+        boardNode.addChild(gameAreaBackground)
+        
         // Board border - positioned above controller
         let border = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, 
                                              width: boardWidth + 4, height: boardHeight + 4))
