@@ -1,6 +1,6 @@
 # SwiftTetris
 
-A faithful recreation of classic NES Tetris built in Swift using SpriteKit.
+A (somewhat) faithful recreation of classic NES Tetris built in Swift using SpriteKit.
 
 ## Features
 
