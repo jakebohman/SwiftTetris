@@ -6,7 +6,7 @@ A (somewhat) faithful recreation of classic NES Tetris built in Swift using Spri
 
 The game recreates the authentic NES Tetris experience with accurate scoring, level progression, and gameplay mechanics. Players can control pieces using touch controls that mimic the original NES controller, complete with a realistic D-pad and A/B buttons.
 
-<img width="347" height="660" alt="TetrisCapture" src="https://github.com/user-attachments/assets/cd710ec4-6bc0-49e9-b58c-0865db38de9e" />
+<img width="327" height="655" alt="Capture" src="https://github.com/user-attachments/assets/5080bb1c-4f11-442e-bd71-09191a35617d" />
 
 **Authentic NES Mechanics:**
 - Original scoring system (40/100/300/1200 points for 1/2/3/4 lines)
