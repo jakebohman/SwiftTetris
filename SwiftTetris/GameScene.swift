@@ -202,6 +202,11 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
+    // Drag-to-move functionality
+    private var isDragging = false
+    private var dragStartGridPosition: Point = Point(x: 0, y: 0)
+    private var lastDragGridPosition: Point = Point(x: 0, y: 0)
+    
     // Button auto-repeat
     private var leftButtonPressed = false
     private var rightButtonPressed = false
@@ -1604,6 +1609,9 @@ class GameScene: SKScene {
         touchStartLocation = location
         lastTouchTime = CACurrentMediaTime()
         
+        // Reset drag state at start of touch
+        isDragging = false
+        
         switch gameState {
         case .menu:
             startGame()
@@ -1621,6 +1629,16 @@ class GameScene: SKScene {
         }
     }
     
+    // Handle drag movement
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        
+        if gameState == .playing && isLocationInGameArea(location) && !isLocationOnButtons(location) {
+            handleDragMovement(location)
+        }
+    }
+    
     // Track button press states for auto-repeat
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
@@ -1630,8 +1648,14 @@ class GameScene: SKScene {
         // Reset button states when touch ends
         resetButtonStates()
         
+        // Reset drag state
+        isDragging = false
+        
         if gameState == .playing {
-            handleTouchGesture(start: touchStartLocation, end: location, duration: duration)
+            // Only handle gesture if not dragging (to avoid conflicts)
+            if !wasDragging(start: touchStartLocation, end: location) {
+                handleTouchGesture(start: touchStartLocation, end: location, duration: duration)
+            }
         }
     }
     
@@ -1640,6 +1664,77 @@ class GameScene: SKScene {
         leftButtonPressed = false
         rightButtonPressed = false
         // Down button no longer uses pressed state tracking
+    }
+    
+    // Handles drag movement of the current piece
+    func handleDragMovement(_ location: CGPoint) {
+        let gridPosition = screenToGridPosition(location)
+        
+        if !isDragging {
+            // Start dragging
+            isDragging = true
+            dragStartGridPosition = currentTetromino.position
+            lastDragGridPosition = gridPosition
+        } else {
+            // Continue dragging - calculate movement delta
+            let deltaX = gridPosition.x - lastDragGridPosition.x
+            let deltaY = gridPosition.y - lastDragGridPosition.y
+            
+            // Move piece step by step to follow finger smoothly
+            if deltaX != 0 {
+                // Try horizontal movement
+                if attemptMove(dx: deltaX > 0 ? 1 : -1, dy: 0) {
+                    lastDragGridPosition.x = currentTetromino.position.x
+                }
+            }
+            
+            if deltaY != 0 {
+                // Try vertical movement (downward only for gameplay)
+                if deltaY < 0 && attemptMove(dx: 0, dy: -1) {
+                    lastDragGridPosition.y = currentTetromino.position.y
+                }
+            }
+        }
+    }
+    
+    // Convert screen coordinates to grid coordinates
+    func screenToGridPosition(_ screenPoint: CGPoint) -> Point {
+        let boardWidth = CGFloat(columns) * blockSize
+        let boardHeight = CGFloat(rows) * blockSize
+        
+        // Reverse the pointFor calculation
+        // pointFor: x: CGFloat(x) * blockSize - boardWidth/2 + blockSize/2
+        // screenPoint.x = gridX * blockSize - boardWidth/2 + blockSize/2
+        // gridX = (screenPoint.x + boardWidth/2 - blockSize/2) / blockSize
+        
+        let gridX = (screenPoint.x + boardWidth/2 - blockSize/2) / blockSize
+        let gridY = (screenPoint.y + boardHeight/2 - blockSize/2) / blockSize
+        
+        // Convert to integers and clamp to valid range
+        let clampedX = max(0, min(columns - 1, Int(round(gridX))))
+        let clampedY = max(0, min(rows - 1, Int(round(gridY))))
+        
+        return Point(x: clampedX, y: clampedY)
+    }
+    
+    // Check if the movement qualifies as dragging
+    func wasDragging(start: CGPoint, end: CGPoint) -> Bool {
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        let distance = sqrt(dx*dx + dy*dy)
+        return distance > 30 // Consider it dragging if moved more than 30 points
+    }
+    
+    // Check if location is on any control buttons
+    func isLocationOnButtons(_ location: CGPoint) -> Bool {
+        // Check if location is within any button bounds
+        if let leftButton = uiNode.childNode(withName: "leftButton"), leftButton.contains(location) { return true }
+        if let rightButton = uiNode.childNode(withName: "rightButton"), rightButton.contains(location) { return true }
+        if let downButton = uiNode.childNode(withName: "downButton"), downButton.contains(location) { return true }
+        if let aButton = uiNode.childNode(withName: "aButton"), aButton.contains(location) { return true }
+        if let bButton = uiNode.childNode(withName: "bButton"), bButton.contains(location) { return true }
+        if let pauseButton = uiNode.childNode(withName: "pauseButton"), pauseButton.contains(location) { return true }
+        return false
     }
     
     // Handles auto-repeat for D-pad buttons
