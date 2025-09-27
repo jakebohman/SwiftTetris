@@ -202,11 +202,6 @@ class GameScene: SKScene {
     private var lastTouchTime: TimeInterval = 0
     private var touchStartLocation: CGPoint = .zero
     
-    // Drag-to-move functionality
-    private var isDragging = false
-    private var dragStartGridPosition: Point = Point(x: 0, y: 0)
-    private var lastDragGridPosition: Point = Point(x: 0, y: 0)
-    
     // Button auto-repeat
     private var leftButtonPressed = false
     private var rightButtonPressed = false
@@ -942,42 +937,98 @@ class GameScene: SKScene {
         gameOverSoundAction = SKAction.run { }
     }
     
-    // Show main menu (Title and Tap to Start)
+    // Show main menu (Title and Play Game button)
     func showMainMenu() {
         gameState = .menu
+        
+        // Clear any existing menu elements
+        removeMenuElements()
         
         // TETRIS title
         let titleLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
         titleLabel.text = "TETRIS"
         titleLabel.fontSize = 48
         titleLabel.fontColor = .white
-        titleLabel.position = CGPoint(x: 0, y: 100)
+        titleLabel.position = CGPoint(x: 0, y: 120)
         titleLabel.name = "title"
         addChild(titleLabel)
         
-        let startLabel = SKLabelNode(fontNamed: "Helvetica")
-        startLabel.text = "TAP TO START"
-        startLabel.fontSize = 24
-        startLabel.fontColor = .yellow
-        startLabel.position = CGPoint(x: 0, y: 0)
-        startLabel.name = "startLabel"
-        addChild(startLabel)
+        // Subtitle
+        let subtitleLabel = SKLabelNode(fontNamed: "Helvetica")
+        subtitleLabel.text = "Swift Edition"
+        subtitleLabel.fontSize = 18
+        subtitleLabel.fontColor = .lightGray
+        subtitleLabel.position = CGPoint(x: 0, y: 85)
+        subtitleLabel.name = "subtitle"
+        addChild(subtitleLabel)
         
-        // Blinking animation
-        let blink = SKAction.sequence([
-            SKAction.fadeOut(withDuration: 0.5),
-            SKAction.fadeIn(withDuration: 0.5)
-        ])
-        startLabel.run(SKAction.repeatForever(blink))
+        // Play Game button
+        createMenuButton(text: "PLAY GAME", name: "playButton", position: CGPoint(x: 0, y: 20), fontSize: 28, color: .yellow)
+        
+        // High score display (placeholder for now)
+        let highScoreLabel = SKLabelNode(fontNamed: "Helvetica")
+        highScoreLabel.text = "HIGH SCORE: 0"
+        highScoreLabel.fontSize = 16
+        highScoreLabel.fontColor = .white
+        highScoreLabel.position = CGPoint(x: 0, y: -40)
+        highScoreLabel.name = "highScore"
+        addChild(highScoreLabel)
+        
+        // Instructions
+        let instructionsLabel = SKLabelNode(fontNamed: "Helvetica")
+        instructionsLabel.text = "Swipe or tap controls to play"
+        instructionsLabel.fontSize = 14
+        instructionsLabel.fontColor = .gray
+        instructionsLabel.position = CGPoint(x: 0, y: -80)
+        instructionsLabel.name = "instructions"
+        addChild(instructionsLabel)
     }
     
+    // Helper function to create styled menu buttons
+    func createMenuButton(text: String, name: String, position: CGPoint, fontSize: CGFloat, color: SKColor) {
+        let button = SKLabelNode(fontNamed: "Helvetica-Bold")
+        button.text = text
+        button.fontSize = fontSize
+        button.fontColor = color
+        button.position = position
+        button.name = name
+        addChild(button)
+        
+        // Add blinking animation
+        let blink = SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.8),
+            SKAction.fadeIn(withDuration: 0.8)
+        ])
+        button.run(SKAction.repeatForever(blink))
+    }
+    
+    // Helper function to remove menu elements
+    func removeMenuElements() {
+        childNode(withName: "title")?.removeFromParent()
+        childNode(withName: "subtitle")?.removeFromParent()
+        childNode(withName: "playButton")?.removeFromParent()
+        childNode(withName: "highScore")?.removeFromParent()
+        childNode(withName: "instructions")?.removeFromParent()
+        childNode(withName: "startLabel")?.removeFromParent()
+    }
+    
+    // Helper function to remove game over elements
+    func removeGameOverElements() {
+        childNode(withName: "gameOver")?.removeFromParent()
+        childNode(withName: "finalScore")?.removeFromParent()
+        childNode(withName: "finalLevel")?.removeFromParent()
+        childNode(withName: "finalLines")?.removeFromParent()
+        childNode(withName: "restartButton")?.removeFromParent()
+        childNode(withName: "mainMenuButton")?.removeFromParent()
+        childNode(withName: "restart")?.removeFromParent()
+    }
+
     // Start a new game
     func startGame() {
         gameState = .playing
         
         // Remove menu elements
-        childNode(withName: "title")?.removeFromParent()
-        childNode(withName: "startLabel")?.removeFromParent()
+        removeMenuElements()
         
         // Initialize game with NES Tetris starting values
         score = 0
@@ -1243,7 +1294,7 @@ class GameScene: SKScene {
         gameOverLabel.text = "GAME OVER"
         gameOverLabel.fontSize = 36
         gameOverLabel.fontColor = .red
-        gameOverLabel.position = CGPoint(x: 0, y: 100)
+        gameOverLabel.position = CGPoint(x: 0, y: 120)
         gameOverLabel.name = "gameOver"
         addChild(gameOverLabel)
         
@@ -1251,31 +1302,37 @@ class GameScene: SKScene {
         finalScoreLabel.text = "FINAL SCORE: \(score)"
         finalScoreLabel.fontSize = 24
         finalScoreLabel.fontColor = .white
-        finalScoreLabel.position = CGPoint(x: 0, y: 50)
+        finalScoreLabel.position = CGPoint(x: 0, y: 80)
         finalScoreLabel.name = "finalScore"
         addChild(finalScoreLabel)
         
-        let restartLabel = SKLabelNode(fontNamed: "Helvetica")
-        restartLabel.text = "TAP TO RESTART"
-        restartLabel.fontSize = 20
-        restartLabel.fontColor = .yellow
-        restartLabel.position = CGPoint(x: 0, y: -50)
-        restartLabel.name = "restart"
-        addChild(restartLabel)
+        let levelLabel = SKLabelNode(fontNamed: "Helvetica")
+        levelLabel.text = "LEVEL: \(level)"
+        levelLabel.fontSize = 18
+        levelLabel.fontColor = .lightGray
+        levelLabel.position = CGPoint(x: 0, y: 55)
+        levelLabel.name = "finalLevel"
+        addChild(levelLabel)
         
-        let blink = SKAction.sequence([
-            SKAction.fadeOut(withDuration: 0.5),
-            SKAction.fadeIn(withDuration: 0.5)
-        ])
-        restartLabel.run(SKAction.repeatForever(blink))
+        let linesLabel = SKLabelNode(fontNamed: "Helvetica")
+        linesLabel.text = "LINES: \(linesCleared)"
+        linesLabel.fontSize = 18
+        linesLabel.fontColor = .lightGray
+        linesLabel.position = CGPoint(x: 0, y: 35)
+        linesLabel.name = "finalLines"
+        addChild(linesLabel)
+        
+        // Play Again button
+        createMenuButton(text: "PLAY AGAIN", name: "restartButton", position: CGPoint(x: 0, y: -10), fontSize: 24, color: .green)
+        
+        // Main Menu button
+        createMenuButton(text: "MAIN MENU", name: "mainMenuButton", position: CGPoint(x: 0, y: -50), fontSize: 24, color: .cyan)
     }
     
     // Restart the game from game over state
     func restartGame() {
         // Remove game over labels
-        childNode(withName: "gameOver")?.removeFromParent()
-        childNode(withName: "finalScore")?.removeFromParent()
-        childNode(withName: "restart")?.removeFromParent()
+        removeGameOverElements()
         
         // Clear board
         for x in 0..<columns {
@@ -1609,14 +1666,19 @@ class GameScene: SKScene {
         touchStartLocation = location
         lastTouchTime = CACurrentMediaTime()
         
-        // Reset drag state at start of touch
-        isDragging = false
-        
         switch gameState {
         case .menu:
-            startGame()
+            // Check if user tapped the Play Game button
+            if let playButton = childNode(withName: "playButton"), playButton.contains(location) {
+                startGame()
+            }
         case .gameOver:
-            restartGame()
+            // Check which button was tapped in game over state
+            if let restartButton = childNode(withName: "restartButton"), restartButton.contains(location) {
+                restartGame()
+            } else if let mainMenuButton = childNode(withName: "mainMenuButton"), mainMenuButton.contains(location) {
+                showMainMenu()
+            }
         case .playing:
             // Check if tap is on any control button
             if handleControlInput(location) {
@@ -1629,16 +1691,6 @@ class GameScene: SKScene {
         }
     }
     
-    // Handle drag movement
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-        
-        if gameState == .playing && isLocationInGameArea(location) && !isLocationOnButtons(location) {
-            handleDragMovement(location)
-        }
-    }
-    
     // Track button press states for auto-repeat
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
@@ -1648,14 +1700,8 @@ class GameScene: SKScene {
         // Reset button states when touch ends
         resetButtonStates()
         
-        // Reset drag state
-        isDragging = false
-        
         if gameState == .playing {
-            // Only handle gesture if not dragging (to avoid conflicts)
-            if !wasDragging(start: touchStartLocation, end: location) {
-                handleTouchGesture(start: touchStartLocation, end: location, duration: duration)
-            }
+            handleTouchGesture(start: touchStartLocation, end: location, duration: duration)
         }
     }
     
@@ -1664,77 +1710,6 @@ class GameScene: SKScene {
         leftButtonPressed = false
         rightButtonPressed = false
         // Down button no longer uses pressed state tracking
-    }
-    
-    // Handles drag movement of the current piece
-    func handleDragMovement(_ location: CGPoint) {
-        let gridPosition = screenToGridPosition(location)
-        
-        if !isDragging {
-            // Start dragging
-            isDragging = true
-            dragStartGridPosition = currentTetromino.position
-            lastDragGridPosition = gridPosition
-        } else {
-            // Continue dragging - calculate movement delta
-            let deltaX = gridPosition.x - lastDragGridPosition.x
-            let deltaY = gridPosition.y - lastDragGridPosition.y
-            
-            // Move piece step by step to follow finger smoothly
-            if deltaX != 0 {
-                // Try horizontal movement
-                if attemptMove(dx: deltaX > 0 ? 1 : -1, dy: 0) {
-                    lastDragGridPosition.x = currentTetromino.position.x
-                }
-            }
-            
-            if deltaY != 0 {
-                // Try vertical movement (downward only for gameplay)
-                if deltaY < 0 && attemptMove(dx: 0, dy: -1) {
-                    lastDragGridPosition.y = currentTetromino.position.y
-                }
-            }
-        }
-    }
-    
-    // Convert screen coordinates to grid coordinates
-    func screenToGridPosition(_ screenPoint: CGPoint) -> Point {
-        let boardWidth = CGFloat(columns) * blockSize
-        let boardHeight = CGFloat(rows) * blockSize
-        
-        // Reverse the pointFor calculation
-        // pointFor: x: CGFloat(x) * blockSize - boardWidth/2 + blockSize/2
-        // screenPoint.x = gridX * blockSize - boardWidth/2 + blockSize/2
-        // gridX = (screenPoint.x + boardWidth/2 - blockSize/2) / blockSize
-        
-        let gridX = (screenPoint.x + boardWidth/2 - blockSize/2) / blockSize
-        let gridY = (screenPoint.y + boardHeight/2 - blockSize/2) / blockSize
-        
-        // Convert to integers and clamp to valid range
-        let clampedX = max(0, min(columns - 1, Int(round(gridX))))
-        let clampedY = max(0, min(rows - 1, Int(round(gridY))))
-        
-        return Point(x: clampedX, y: clampedY)
-    }
-    
-    // Check if the movement qualifies as dragging
-    func wasDragging(start: CGPoint, end: CGPoint) -> Bool {
-        let dx = end.x - start.x
-        let dy = end.y - start.y
-        let distance = sqrt(dx*dx + dy*dy)
-        return distance > 30 // Consider it dragging if moved more than 30 points
-    }
-    
-    // Check if location is on any control buttons
-    func isLocationOnButtons(_ location: CGPoint) -> Bool {
-        // Check if location is within any button bounds
-        if let leftButton = uiNode.childNode(withName: "leftButton"), leftButton.contains(location) { return true }
-        if let rightButton = uiNode.childNode(withName: "rightButton"), rightButton.contains(location) { return true }
-        if let downButton = uiNode.childNode(withName: "downButton"), downButton.contains(location) { return true }
-        if let aButton = uiNode.childNode(withName: "aButton"), aButton.contains(location) { return true }
-        if let bButton = uiNode.childNode(withName: "bButton"), bButton.contains(location) { return true }
-        if let pauseButton = uiNode.childNode(withName: "pauseButton"), pauseButton.contains(location) { return true }
-        return false
     }
     
     // Handles auto-repeat for D-pad buttons
