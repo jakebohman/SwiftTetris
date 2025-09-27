@@ -205,13 +205,13 @@ class GameScene: SKScene {
     // Button auto-repeat
     private var leftButtonPressed = false
     private var rightButtonPressed = false
-    private var downButtonPressed = false
+    // Down button now triggers hard drop - no pressed state needed
     private var lastLeftRepeat: TimeInterval = 0
     private var lastRightRepeat: TimeInterval = 0
-    private var lastDownRepeat: TimeInterval = 0
+    // Down button no longer uses repeat timing
     private var buttonRepeatDelay: TimeInterval = 0.3
     private var leftRightRepeatRate: TimeInterval = 0.15
-    private var downRepeatRate: TimeInterval = 0.05
+    // Down button no longer uses repeat rate
     
     // Random number generation
     private var rngSeed = 0xC0FFEE
@@ -356,34 +356,51 @@ class GameScene: SKScene {
              CGPoint(x: -width/2 + 51, y: height * 0.1)],
             
             // O piece on left edge
-            [CGPoint(x: -width/2 + 20, y: height * 0.25), 
-             CGPoint(x: -width/2 + 32, y: height * 0.25),
-             CGPoint(x: -width/2 + 20, y: height * 0.25 + 12), 
-             CGPoint(x: -width/2 + 32, y: height * 0.25 + 12)],
+            [CGPoint(x: -width/2 + 20, y: height * 0.22), 
+             CGPoint(x: -width/2 + 32, y: height * 0.22),
+             CGPoint(x: -width/2 + 20, y: height * 0.22 + 12), 
+             CGPoint(x: -width/2 + 32, y: height * 0.22 + 12)],
             
             // T piece on left edge
-            [CGPoint(x: -width/2 + 39, y: height * 0.4),
-             CGPoint(x: -width/2 + 27, y: height * 0.4 + 12), 
-             CGPoint(x: -width/2 + 39, y: height * 0.4 + 12), 
-             CGPoint(x: -width/2 + 51, y: height * 0.4 + 12)],
+            [CGPoint(x: -width/2 + 39, y: height * 0.35),
+             CGPoint(x: -width/2 + 27, y: height * 0.35 + 12), 
+             CGPoint(x: -width/2 + 39, y: height * 0.35 + 12), 
+             CGPoint(x: -width/2 + 51, y: height * 0.35 + 12)],
             
             // S piece on left edge
-            [CGPoint(x: -width/2 + 15, y: height * 0.55), 
-             CGPoint(x: -width/2 + 27, y: height * 0.55),
-             CGPoint(x: -width/2 + 27, y: height * 0.55 + 12), 
-             CGPoint(x: -width/2 + 39, y: height * 0.55 + 12)],
+            [CGPoint(x: -width/2 + 15, y: height * 0.48), 
+             CGPoint(x: -width/2 + 27, y: height * 0.48),
+             CGPoint(x: -width/2 + 27, y: height * 0.48 + 12), 
+             CGPoint(x: -width/2 + 39, y: height * 0.48 + 12)],
             
             // L piece on left edge
-            [CGPoint(x: -width/2 + 20, y: height * 0.7), 
-             CGPoint(x: -width/2 + 20, y: height * 0.7 + 12),
-             CGPoint(x: -width/2 + 20, y: height * 0.7 + 24), 
-             CGPoint(x: -width/2 + 32, y: height * 0.7 + 24)],
+            [CGPoint(x: -width/2 + 20, y: height * 0.61), 
+             CGPoint(x: -width/2 + 20, y: height * 0.61 + 12),
+             CGPoint(x: -width/2 + 20, y: height * 0.61 + 24), 
+             CGPoint(x: -width/2 + 32, y: height * 0.61 + 24)],
              
             // Z piece on left edge
-            [CGPoint(x: -width/2 + 27, y: height * 0.85),
-             CGPoint(x: -width/2 + 39, y: height * 0.85),
-             CGPoint(x: -width/2 + 15, y: height * 0.85 + 12),
-             CGPoint(x: -width/2 + 27, y: height * 0.85 + 12)]
+            [CGPoint(x: -width/2 + 27, y: height * 0.74),
+             CGPoint(x: -width/2 + 39, y: height * 0.74),
+             CGPoint(x: -width/2 + 15, y: height * 0.74 + 12),
+             CGPoint(x: -width/2 + 27, y: height * 0.74 + 12)],
+             
+            // Additional J piece on left edge (bottom area)
+            [CGPoint(x: -width/2 + 51, y: height * 0.87),
+             CGPoint(x: -width/2 + 27, y: height * 0.87 + 12),
+             CGPoint(x: -width/2 + 39, y: height * 0.87 + 12),
+             CGPoint(x: -width/2 + 51, y: height * 0.87 + 12)],
+             
+            // Bottom left corner cluster
+            [CGPoint(x: -width/2 + 15, y: -height/2 + 20),
+             CGPoint(x: -width/2 + 27, y: -height/2 + 20),
+             CGPoint(x: -width/2 + 15, y: -height/2 + 32),
+             CGPoint(x: -width/2 + 27, y: -height/2 + 32)],
+             
+            [CGPoint(x: -width/2 + 45, y: -height/2 + 15),
+             CGPoint(x: -width/2 + 57, y: -height/2 + 15),
+             CGPoint(x: -width/2 + 69, y: -height/2 + 15),
+             CGPoint(x: -width/2 + 81, y: -height/2 + 15)]
         ]
         
         // Right edge positions
@@ -395,37 +412,85 @@ class GameScene: SKScene {
              CGPoint(x: width/2 - 27, y: height * 0.15)],
             
             // O piece on right edge
-            [CGPoint(x: width/2 - 44, y: height * 0.3), 
-             CGPoint(x: width/2 - 32, y: height * 0.3),
-             CGPoint(x: width/2 - 44, y: height * 0.3 + 12), 
-             CGPoint(x: width/2 - 32, y: height * 0.3 + 12)],
+            [CGPoint(x: width/2 - 44, y: height * 0.28), 
+             CGPoint(x: width/2 - 32, y: height * 0.28),
+             CGPoint(x: width/2 - 44, y: height * 0.28 + 12), 
+             CGPoint(x: width/2 - 32, y: height * 0.28 + 12)],
             
             // T piece on right edge
-            [CGPoint(x: width/2 - 39, y: height * 0.45),
-             CGPoint(x: width/2 - 51, y: height * 0.45 + 12), 
-             CGPoint(x: width/2 - 39, y: height * 0.45 + 12), 
-             CGPoint(x: width/2 - 27, y: height * 0.45 + 12)],
+            [CGPoint(x: width/2 - 39, y: height * 0.41),
+             CGPoint(x: width/2 - 51, y: height * 0.41 + 12), 
+             CGPoint(x: width/2 - 39, y: height * 0.41 + 12), 
+             CGPoint(x: width/2 - 27, y: height * 0.41 + 12)],
             
             // Z piece on right edge
-            [CGPoint(x: width/2 - 51, y: height * 0.6), 
-             CGPoint(x: width/2 - 39, y: height * 0.6),
-             CGPoint(x: width/2 - 39, y: height * 0.6 + 12), 
-             CGPoint(x: width/2 - 27, y: height * 0.6 + 12)],
+            [CGPoint(x: width/2 - 51, y: height * 0.54), 
+             CGPoint(x: width/2 - 39, y: height * 0.54),
+             CGPoint(x: width/2 - 39, y: height * 0.54 + 12), 
+             CGPoint(x: width/2 - 27, y: height * 0.54 + 12)],
             
             // J piece on right edge
-            [CGPoint(x: width/2 - 32, y: height * 0.75), 
-             CGPoint(x: width/2 - 44, y: height * 0.75 + 12),
-             CGPoint(x: width/2 - 32, y: height * 0.75 + 12), 
-             CGPoint(x: width/2 - 20, y: height * 0.75 + 12)],
+            [CGPoint(x: width/2 - 32, y: height * 0.67), 
+             CGPoint(x: width/2 - 44, y: height * 0.67 + 12),
+             CGPoint(x: width/2 - 32, y: height * 0.67 + 12), 
+             CGPoint(x: width/2 - 20, y: height * 0.67 + 12)],
              
             // Additional S piece on right edge
-            [CGPoint(x: width/2 - 39, y: height * 0.85),
-             CGPoint(x: width/2 - 27, y: height * 0.85),
-             CGPoint(x: width/2 - 51, y: height * 0.85 + 12),
-             CGPoint(x: width/2 - 39, y: height * 0.85 + 12)]
+            [CGPoint(x: width/2 - 39, y: height * 0.8),
+             CGPoint(x: width/2 - 27, y: height * 0.8),
+             CGPoint(x: width/2 - 51, y: height * 0.8 + 12),
+             CGPoint(x: width/2 - 39, y: height * 0.8 + 12)],
+             
+            // Additional L piece (bottom area)
+            [CGPoint(x: width/2 - 20, y: height * 0.93),
+             CGPoint(x: width/2 - 20, y: height * 0.93 + 12),
+             CGPoint(x: width/2 - 20, y: height * 0.93 + 24),
+             CGPoint(x: width/2 - 32, y: height * 0.93 + 24)],
+             
+            // Bottom right corner cluster
+            [CGPoint(x: width/2 - 44, y: -height/2 + 20),
+             CGPoint(x: width/2 - 32, y: -height/2 + 20),
+             CGPoint(x: width/2 - 44, y: -height/2 + 32),
+             CGPoint(x: width/2 - 32, y: -height/2 + 32)],
+             
+            [CGPoint(x: width/2 - 93, y: -height/2 + 15),
+             CGPoint(x: width/2 - 81, y: -height/2 + 15),
+             CGPoint(x: width/2 - 69, y: -height/2 + 15),
+             CGPoint(x: width/2 - 57, y: -height/2 + 15)]
         ]
         
-        let allPositions = leftPositions + rightPositions
+        // Bottom center area positions
+        let bottomCenterPositions = [
+            // Bottom center T pieces
+            [CGPoint(x: -60, y: -height/2 + 35),
+             CGPoint(x: -48, y: -height/2 + 47),
+             CGPoint(x: -60, y: -height/2 + 47),
+             CGPoint(x: -72, y: -height/2 + 47)],
+             
+            [CGPoint(x: 60, y: -height/2 + 35),
+             CGPoint(x: 48, y: -height/2 + 47),
+             CGPoint(x: 60, y: -height/2 + 47),
+             CGPoint(x: 72, y: -height/2 + 47)],
+             
+            // Bottom center I pieces
+            [CGPoint(x: -20, y: -height/2 + 25),
+             CGPoint(x: -8, y: -height/2 + 25),
+             CGPoint(x: 4, y: -height/2 + 25),
+             CGPoint(x: 16, y: -height/2 + 25)],
+             
+            // Bottom center O pieces  
+            [CGPoint(x: -100, y: -height/2 + 55),
+             CGPoint(x: -88, y: -height/2 + 55),
+             CGPoint(x: -100, y: -height/2 + 67),
+             CGPoint(x: -88, y: -height/2 + 67)],
+             
+            [CGPoint(x: 88, y: -height/2 + 55),
+             CGPoint(x: 100, y: -height/2 + 55),
+             CGPoint(x: 88, y: -height/2 + 67),
+             CGPoint(x: 100, y: -height/2 + 67)]
+        ]
+        
+        let allPositions = leftPositions + rightPositions + bottomCenterPositions
         
         // Draw the tetromino shapes
         for (shapeIndex, positions) in allPositions.enumerated() {
@@ -1551,7 +1616,7 @@ class GameScene: SKScene {
     func resetButtonStates() {
         leftButtonPressed = false
         rightButtonPressed = false
-        downButtonPressed = false
+        // Down button no longer uses pressed state tracking
     }
     
     // Handles auto-repeat for D-pad buttons
@@ -1580,17 +1645,7 @@ class GameScene: SKScene {
             }
         }
         
-        // Down button auto-repeat (faster)
-        if downButtonPressed && (currentTime - lastDownRepeat) > buttonRepeatDelay {
-            if (currentTime - lastDownRepeat) > (buttonRepeatDelay + downRepeatRate) {
-                let success = attemptMove(dx: 0, dy: -1)
-                if success {
-                    lastDownRepeat = currentTime - buttonRepeatDelay
-                } else {
-                    downButtonPressed = false
-                }
-            }
-        }
+        // Down button auto-repeat removed - now triggers hard drop instantly
     }
     
     // Handles input on control buttons
@@ -1620,11 +1675,8 @@ class GameScene: SKScene {
             return true
         }
         if let downButton = uiNode.childNode(withName: "downButton"), downButton.contains(location) {
-            if !downButtonPressed {
-                downButtonPressed = true
-                lastDownRepeat = CACurrentMediaTime()
-                _ = attemptMove(dx: 0, dy: -1)
-            }
+            // Trigger hard drop instead of soft drop
+            hardDrop()
             return true
         }
         
