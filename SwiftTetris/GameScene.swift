@@ -347,147 +347,170 @@ class GameScene: SKScene {
         // Calculate edge zones
         let edgeMargin = width * 0.15 // 15% from each edge
         
-        // Left edge positions - defining tetromino shapes
+        // Left edge positions - defining tetromino shapes (moved down to fill entire background)
         let leftPositions = [
-            // I piece on left edge (horizontal)
-            [CGPoint(x: -width/2 + 15, y: height * 0.1), 
-             CGPoint(x: -width/2 + 27, y: height * 0.1), 
-             CGPoint(x: -width/2 + 39, y: height * 0.1), 
-             CGPoint(x: -width/2 + 51, y: height * 0.1)],
+            // I piece on left edge (horizontal) - top area
+            [CGPoint(x: -width/2 + 15, y: height/2 - 50), 
+             CGPoint(x: -width/2 + 27, y: height/2 - 50), 
+             CGPoint(x: -width/2 + 39, y: height/2 - 50), 
+             CGPoint(x: -width/2 + 51, y: height/2 - 50)],
             
-            // O piece on left edge
-            [CGPoint(x: -width/2 + 20, y: height * 0.22), 
-             CGPoint(x: -width/2 + 32, y: height * 0.22),
-             CGPoint(x: -width/2 + 20, y: height * 0.22 + 12), 
-             CGPoint(x: -width/2 + 32, y: height * 0.22 + 12)],
+            // O piece on left edge - upper area
+            [CGPoint(x: -width/2 + 20, y: height/2 - 120), 
+             CGPoint(x: -width/2 + 32, y: height/2 - 120),
+             CGPoint(x: -width/2 + 20, y: height/2 - 120 + 12), 
+             CGPoint(x: -width/2 + 32, y: height/2 - 120 + 12)],
             
-            // T piece on left edge
-            [CGPoint(x: -width/2 + 39, y: height * 0.35),
-             CGPoint(x: -width/2 + 27, y: height * 0.35 + 12), 
-             CGPoint(x: -width/2 + 39, y: height * 0.35 + 12), 
-             CGPoint(x: -width/2 + 51, y: height * 0.35 + 12)],
+            // T piece on left edge - upper middle
+            [CGPoint(x: -width/2 + 39, y: height/2 - 190),
+             CGPoint(x: -width/2 + 27, y: height/2 - 190 + 12), 
+             CGPoint(x: -width/2 + 39, y: height/2 - 190 + 12), 
+             CGPoint(x: -width/2 + 51, y: height/2 - 190 + 12)],
             
-            // S piece on left edge
-            [CGPoint(x: -width/2 + 15, y: height * 0.48), 
-             CGPoint(x: -width/2 + 27, y: height * 0.48),
-             CGPoint(x: -width/2 + 27, y: height * 0.48 + 12), 
-             CGPoint(x: -width/2 + 39, y: height * 0.48 + 12)],
+            // S piece on left edge - middle
+            [CGPoint(x: -width/2 + 15, y: height/2 - 260), 
+             CGPoint(x: -width/2 + 27, y: height/2 - 260),
+             CGPoint(x: -width/2 + 27, y: height/2 - 260 + 12), 
+             CGPoint(x: -width/2 + 39, y: height/2 - 260 + 12)],
             
-            // L piece on left edge
-            [CGPoint(x: -width/2 + 20, y: height * 0.61), 
-             CGPoint(x: -width/2 + 20, y: height * 0.61 + 12),
-             CGPoint(x: -width/2 + 20, y: height * 0.61 + 24), 
-             CGPoint(x: -width/2 + 32, y: height * 0.61 + 24)],
+            // L piece on left edge - lower middle
+            [CGPoint(x: -width/2 + 20, y: height/2 - 330), 
+             CGPoint(x: -width/2 + 20, y: height/2 - 330 + 12),
+             CGPoint(x: -width/2 + 20, y: height/2 - 330 + 24), 
+             CGPoint(x: -width/2 + 32, y: height/2 - 330 + 24)],
              
-            // Z piece on left edge
-            [CGPoint(x: -width/2 + 27, y: height * 0.74),
-             CGPoint(x: -width/2 + 39, y: height * 0.74),
-             CGPoint(x: -width/2 + 15, y: height * 0.74 + 12),
-             CGPoint(x: -width/2 + 27, y: height * 0.74 + 12)],
+            // Z piece on left edge - lower area
+            [CGPoint(x: -width/2 + 27, y: height/2 - 400),
+             CGPoint(x: -width/2 + 39, y: height/2 - 400),
+             CGPoint(x: -width/2 + 15, y: height/2 - 400 + 12),
+             CGPoint(x: -width/2 + 27, y: height/2 - 400 + 12)],
              
-            // Additional J piece on left edge (bottom area)
-            [CGPoint(x: -width/2 + 51, y: height * 0.87),
-             CGPoint(x: -width/2 + 27, y: height * 0.87 + 12),
-             CGPoint(x: -width/2 + 39, y: height * 0.87 + 12),
-             CGPoint(x: -width/2 + 51, y: height * 0.87 + 12)],
+            // Additional J piece on left edge - controller area
+            [CGPoint(x: -width/2 + 51, y: height/2 - 470),
+             CGPoint(x: -width/2 + 27, y: height/2 - 470 + 12),
+             CGPoint(x: -width/2 + 39, y: height/2 - 470 + 12),
+             CGPoint(x: -width/2 + 51, y: height/2 - 470 + 12)],
              
-            // Bottom left corner cluster
-            [CGPoint(x: -width/2 + 15, y: -height/2 + 20),
-             CGPoint(x: -width/2 + 27, y: -height/2 + 20),
-             CGPoint(x: -width/2 + 15, y: -height/2 + 32),
-             CGPoint(x: -width/2 + 27, y: -height/2 + 32)],
+            // Controller area left clusters
+            [CGPoint(x: -width/2 + 15, y: height/2 - 540),
+             CGPoint(x: -width/2 + 27, y: height/2 - 540),
+             CGPoint(x: -width/2 + 15, y: height/2 - 540 + 12),
+             CGPoint(x: -width/2 + 27, y: height/2 - 540 + 12)],
              
-            [CGPoint(x: -width/2 + 45, y: -height/2 + 15),
-             CGPoint(x: -width/2 + 57, y: -height/2 + 15),
-             CGPoint(x: -width/2 + 69, y: -height/2 + 15),
-             CGPoint(x: -width/2 + 81, y: -height/2 + 15)]
+            [CGPoint(x: -width/2 + 45, y: height/2 - 610),
+             CGPoint(x: -width/2 + 57, y: height/2 - 610),
+             CGPoint(x: -width/2 + 69, y: height/2 - 610),
+             CGPoint(x: -width/2 + 81, y: height/2 - 610)],
+             
+            // Additional shapes for very bottom area
+            [CGPoint(x: -width/2 + 20, y: height/2 - 680),
+             CGPoint(x: -width/2 + 32, y: height/2 - 680),
+             CGPoint(x: -width/2 + 20, y: height/2 - 680 + 12),
+             CGPoint(x: -width/2 + 32, y: height/2 - 680 + 12)]
         ]
         
-        // Right edge positions
+        // Right edge positions (moved down to fill entire background)
         let rightPositions = [
-            // I piece on right edge (horizontal)
-            [CGPoint(x: width/2 - 63, y: height * 0.15), 
-             CGPoint(x: width/2 - 51, y: height * 0.15),
-             CGPoint(x: width/2 - 39, y: height * 0.15), 
-             CGPoint(x: width/2 - 27, y: height * 0.15)],
+            // I piece on right edge (horizontal) - top area
+            [CGPoint(x: width/2 - 63, y: height/2 - 60), 
+             CGPoint(x: width/2 - 51, y: height/2 - 60),
+             CGPoint(x: width/2 - 39, y: height/2 - 60), 
+             CGPoint(x: width/2 - 27, y: height/2 - 60)],
             
-            // O piece on right edge
-            [CGPoint(x: width/2 - 44, y: height * 0.28), 
-             CGPoint(x: width/2 - 32, y: height * 0.28),
-             CGPoint(x: width/2 - 44, y: height * 0.28 + 12), 
-             CGPoint(x: width/2 - 32, y: height * 0.28 + 12)],
+            // O piece on right edge - upper area
+            [CGPoint(x: width/2 - 44, y: height/2 - 130), 
+             CGPoint(x: width/2 - 32, y: height/2 - 130),
+             CGPoint(x: width/2 - 44, y: height/2 - 130 + 12), 
+             CGPoint(x: width/2 - 32, y: height/2 - 130 + 12)],
             
-            // T piece on right edge
-            [CGPoint(x: width/2 - 39, y: height * 0.41),
-             CGPoint(x: width/2 - 51, y: height * 0.41 + 12), 
-             CGPoint(x: width/2 - 39, y: height * 0.41 + 12), 
-             CGPoint(x: width/2 - 27, y: height * 0.41 + 12)],
+            // T piece on right edge - upper middle
+            [CGPoint(x: width/2 - 39, y: height/2 - 200),
+             CGPoint(x: width/2 - 51, y: height/2 - 200 + 12), 
+             CGPoint(x: width/2 - 39, y: height/2 - 200 + 12), 
+             CGPoint(x: width/2 - 27, y: height/2 - 200 + 12)],
             
-            // Z piece on right edge
-            [CGPoint(x: width/2 - 51, y: height * 0.54), 
-             CGPoint(x: width/2 - 39, y: height * 0.54),
-             CGPoint(x: width/2 - 39, y: height * 0.54 + 12), 
-             CGPoint(x: width/2 - 27, y: height * 0.54 + 12)],
+            // Z piece on right edge - middle
+            [CGPoint(x: width/2 - 51, y: height/2 - 270), 
+             CGPoint(x: width/2 - 39, y: height/2 - 270),
+             CGPoint(x: width/2 - 39, y: height/2 - 270 + 12), 
+             CGPoint(x: width/2 - 27, y: height/2 - 270 + 12)],
             
-            // J piece on right edge
-            [CGPoint(x: width/2 - 32, y: height * 0.67), 
-             CGPoint(x: width/2 - 44, y: height * 0.67 + 12),
-             CGPoint(x: width/2 - 32, y: height * 0.67 + 12), 
-             CGPoint(x: width/2 - 20, y: height * 0.67 + 12)],
+            // J piece on right edge - lower middle
+            [CGPoint(x: width/2 - 32, y: height/2 - 340), 
+             CGPoint(x: width/2 - 44, y: height/2 - 340 + 12),
+             CGPoint(x: width/2 - 32, y: height/2 - 340 + 12), 
+             CGPoint(x: width/2 - 20, y: height/2 - 340 + 12)],
              
-            // Additional S piece on right edge
-            [CGPoint(x: width/2 - 39, y: height * 0.8),
-             CGPoint(x: width/2 - 27, y: height * 0.8),
-             CGPoint(x: width/2 - 51, y: height * 0.8 + 12),
-             CGPoint(x: width/2 - 39, y: height * 0.8 + 12)],
+            // Additional S piece on right edge - lower area
+            [CGPoint(x: width/2 - 39, y: height/2 - 410),
+             CGPoint(x: width/2 - 27, y: height/2 - 410),
+             CGPoint(x: width/2 - 51, y: height/2 - 410 + 12),
+             CGPoint(x: width/2 - 39, y: height/2 - 410 + 12)],
              
-            // Additional L piece (bottom area)
-            [CGPoint(x: width/2 - 20, y: height * 0.93),
-             CGPoint(x: width/2 - 20, y: height * 0.93 + 12),
-             CGPoint(x: width/2 - 20, y: height * 0.93 + 24),
-             CGPoint(x: width/2 - 32, y: height * 0.93 + 24)],
+            // Additional L piece - controller area
+            [CGPoint(x: width/2 - 20, y: height/2 - 480),
+             CGPoint(x: width/2 - 20, y: height/2 - 480 + 12),
+             CGPoint(x: width/2 - 20, y: height/2 - 480 + 24),
+             CGPoint(x: width/2 - 32, y: height/2 - 480 + 24)],
              
-            // Bottom right corner cluster
-            [CGPoint(x: width/2 - 44, y: -height/2 + 20),
-             CGPoint(x: width/2 - 32, y: -height/2 + 20),
-             CGPoint(x: width/2 - 44, y: -height/2 + 32),
-             CGPoint(x: width/2 - 32, y: -height/2 + 32)],
+            // Controller area right clusters
+            [CGPoint(x: width/2 - 44, y: height/2 - 550),
+             CGPoint(x: width/2 - 32, y: height/2 - 550),
+             CGPoint(x: width/2 - 44, y: height/2 - 550 + 12),
+             CGPoint(x: width/2 - 32, y: height/2 - 550 + 12)],
              
-            [CGPoint(x: width/2 - 93, y: -height/2 + 15),
-             CGPoint(x: width/2 - 81, y: -height/2 + 15),
-             CGPoint(x: width/2 - 69, y: -height/2 + 15),
-             CGPoint(x: width/2 - 57, y: -height/2 + 15)]
+            [CGPoint(x: width/2 - 93, y: height/2 - 620),
+             CGPoint(x: width/2 - 81, y: height/2 - 620),
+             CGPoint(x: width/2 - 69, y: height/2 - 620),
+             CGPoint(x: width/2 - 57, y: height/2 - 620)],
+             
+            // Additional shapes for very bottom area
+            [CGPoint(x: width/2 - 44, y: height/2 - 690),
+             CGPoint(x: width/2 - 32, y: height/2 - 690),
+             CGPoint(x: width/2 - 44, y: height/2 - 690 + 12),
+             CGPoint(x: width/2 - 32, y: height/2 - 690 + 12)]
         ]
         
-        // Bottom center area positions
+        // Bottom center area positions (controller area coverage)
         let bottomCenterPositions = [
-            // Bottom center T pieces
-            [CGPoint(x: -60, y: -height/2 + 35),
-             CGPoint(x: -48, y: -height/2 + 47),
-             CGPoint(x: -60, y: -height/2 + 47),
-             CGPoint(x: -72, y: -height/2 + 47)],
+            // Controller area center-left T pieces
+            [CGPoint(x: -60, y: height/2 - 520),
+             CGPoint(x: -48, y: height/2 - 520 + 12),
+             CGPoint(x: -60, y: height/2 - 520 + 12),
+             CGPoint(x: -72, y: height/2 - 520 + 12)],
              
-            [CGPoint(x: 60, y: -height/2 + 35),
-             CGPoint(x: 48, y: -height/2 + 47),
-             CGPoint(x: 60, y: -height/2 + 47),
-             CGPoint(x: 72, y: -height/2 + 47)],
+            [CGPoint(x: 60, y: height/2 - 560),
+             CGPoint(x: 48, y: height/2 - 560 + 12),
+             CGPoint(x: 60, y: height/2 - 560 + 12),
+             CGPoint(x: 72, y: height/2 - 560 + 12)],
              
-            // Bottom center I pieces
-            [CGPoint(x: -20, y: -height/2 + 25),
-             CGPoint(x: -8, y: -height/2 + 25),
-             CGPoint(x: 4, y: -height/2 + 25),
-             CGPoint(x: 16, y: -height/2 + 25)],
+            // Controller area center I pieces
+            [CGPoint(x: -20, y: height/2 - 600),
+             CGPoint(x: -8, y: height/2 - 600),
+             CGPoint(x: 4, y: height/2 - 600),
+             CGPoint(x: 16, y: height/2 - 600)],
              
-            // Bottom center O pieces  
-            [CGPoint(x: -100, y: -height/2 + 55),
-             CGPoint(x: -88, y: -height/2 + 55),
-             CGPoint(x: -100, y: -height/2 + 67),
-             CGPoint(x: -88, y: -height/2 + 67)],
+            // Controller area O pieces  
+            [CGPoint(x: -100, y: height/2 - 640),
+             CGPoint(x: -88, y: height/2 - 640),
+             CGPoint(x: -100, y: height/2 - 640 + 12),
+             CGPoint(x: -88, y: height/2 - 640 + 12)],
              
-            [CGPoint(x: 88, y: -height/2 + 55),
-             CGPoint(x: 100, y: -height/2 + 55),
-             CGPoint(x: 88, y: -height/2 + 67),
-             CGPoint(x: 100, y: -height/2 + 67)]
+            [CGPoint(x: 88, y: height/2 - 680),
+             CGPoint(x: 100, y: height/2 - 680),
+             CGPoint(x: 88, y: height/2 - 680 + 12),
+             CGPoint(x: 100, y: height/2 - 680 + 12)],
+             
+            // Very bottom area coverage
+            [CGPoint(x: -30, y: height/2 - 720),
+             CGPoint(x: -18, y: height/2 - 720),
+             CGPoint(x: -30, y: height/2 - 720 + 12),
+             CGPoint(x: -18, y: height/2 - 720 + 12)],
+             
+            [CGPoint(x: 18, y: height/2 - 720),
+             CGPoint(x: 30, y: height/2 - 720),
+             CGPoint(x: 18, y: height/2 - 720 + 12),
+             CGPoint(x: 30, y: height/2 - 720 + 12)]
         ]
         
         let allPositions = leftPositions + rightPositions + bottomCenterPositions
