@@ -330,8 +330,8 @@ class GameScene: SKScene {
     
     // Creates decorative tetromino shapes scattered on the background
     func createDecorativeTetrominoes(in parent: SKNode, width: CGFloat, height: CGFloat) {
-        let blockSize: CGFloat = 20.0
-        let alpha: CGFloat = 0.15
+        let blockSize: CGFloat = 12.0
+        let alpha: CGFloat = 0.25
         
         // Tetromino colors with low alpha
         let tetrominoColors = [
@@ -350,67 +350,79 @@ class GameScene: SKScene {
         // Left edge positions - defining tetromino shapes
         let leftPositions = [
             // I piece on left edge (horizontal)
-            [CGPoint(x: -width/2 + 20, y: height * 0.1), 
-             CGPoint(x: -width/2 + 40, y: height * 0.1), 
-             CGPoint(x: -width/2 + 60, y: height * 0.1), 
-             CGPoint(x: -width/2 + 80, y: height * 0.1)],
+            [CGPoint(x: -width/2 + 15, y: height * 0.1), 
+             CGPoint(x: -width/2 + 27, y: height * 0.1), 
+             CGPoint(x: -width/2 + 39, y: height * 0.1), 
+             CGPoint(x: -width/2 + 51, y: height * 0.1)],
             
             // O piece on left edge
-            [CGPoint(x: -width/2 + 30, y: height * 0.25), 
-             CGPoint(x: -width/2 + 50, y: height * 0.25),
-             CGPoint(x: -width/2 + 30, y: height * 0.25 + 20), 
-             CGPoint(x: -width/2 + 50, y: height * 0.25 + 20)],
+            [CGPoint(x: -width/2 + 20, y: height * 0.25), 
+             CGPoint(x: -width/2 + 32, y: height * 0.25),
+             CGPoint(x: -width/2 + 20, y: height * 0.25 + 12), 
+             CGPoint(x: -width/2 + 32, y: height * 0.25 + 12)],
             
             // T piece on left edge
-            [CGPoint(x: -width/2 + 60, y: height * 0.4),
-             CGPoint(x: -width/2 + 40, y: height * 0.4 + 20), 
-             CGPoint(x: -width/2 + 60, y: height * 0.4 + 20), 
-             CGPoint(x: -width/2 + 80, y: height * 0.4 + 20)],
+            [CGPoint(x: -width/2 + 39, y: height * 0.4),
+             CGPoint(x: -width/2 + 27, y: height * 0.4 + 12), 
+             CGPoint(x: -width/2 + 39, y: height * 0.4 + 12), 
+             CGPoint(x: -width/2 + 51, y: height * 0.4 + 12)],
             
             // S piece on left edge
-            [CGPoint(x: -width/2 + 20, y: height * 0.6), 
-             CGPoint(x: -width/2 + 40, y: height * 0.6),
-             CGPoint(x: -width/2 + 40, y: height * 0.6 + 20), 
-             CGPoint(x: -width/2 + 60, y: height * 0.6 + 20)],
+            [CGPoint(x: -width/2 + 15, y: height * 0.55), 
+             CGPoint(x: -width/2 + 27, y: height * 0.55),
+             CGPoint(x: -width/2 + 27, y: height * 0.55 + 12), 
+             CGPoint(x: -width/2 + 39, y: height * 0.55 + 12)],
             
             // L piece on left edge
-            [CGPoint(x: -width/2 + 30, y: height * 0.8), 
-             CGPoint(x: -width/2 + 30, y: height * 0.8 + 20),
-             CGPoint(x: -width/2 + 30, y: height * 0.8 + 40), 
-             CGPoint(x: -width/2 + 50, y: height * 0.8 + 40)]
+            [CGPoint(x: -width/2 + 20, y: height * 0.7), 
+             CGPoint(x: -width/2 + 20, y: height * 0.7 + 12),
+             CGPoint(x: -width/2 + 20, y: height * 0.7 + 24), 
+             CGPoint(x: -width/2 + 32, y: height * 0.7 + 24)],
+             
+            // Z piece on left edge
+            [CGPoint(x: -width/2 + 27, y: height * 0.85),
+             CGPoint(x: -width/2 + 39, y: height * 0.85),
+             CGPoint(x: -width/2 + 15, y: height * 0.85 + 12),
+             CGPoint(x: -width/2 + 27, y: height * 0.85 + 12)]
         ]
         
         // Right edge positions
         let rightPositions = [
             // I piece on right edge (horizontal)
-            [CGPoint(x: width/2 - 100, y: height * 0.15), 
-             CGPoint(x: width/2 - 80, y: height * 0.15),
-             CGPoint(x: width/2 - 60, y: height * 0.15), 
-             CGPoint(x: width/2 - 40, y: height * 0.15)],
+            [CGPoint(x: width/2 - 63, y: height * 0.15), 
+             CGPoint(x: width/2 - 51, y: height * 0.15),
+             CGPoint(x: width/2 - 39, y: height * 0.15), 
+             CGPoint(x: width/2 - 27, y: height * 0.15)],
             
             // O piece on right edge
-            [CGPoint(x: width/2 - 70, y: height * 0.3), 
-             CGPoint(x: width/2 - 50, y: height * 0.3),
-             CGPoint(x: width/2 - 70, y: height * 0.3 + 20), 
-             CGPoint(x: width/2 - 50, y: height * 0.3 + 20)],
+            [CGPoint(x: width/2 - 44, y: height * 0.3), 
+             CGPoint(x: width/2 - 32, y: height * 0.3),
+             CGPoint(x: width/2 - 44, y: height * 0.3 + 12), 
+             CGPoint(x: width/2 - 32, y: height * 0.3 + 12)],
             
             // T piece on right edge
-            [CGPoint(x: width/2 - 60, y: height * 0.45),
-             CGPoint(x: width/2 - 80, y: height * 0.45 + 20), 
-             CGPoint(x: width/2 - 60, y: height * 0.45 + 20), 
-             CGPoint(x: width/2 - 40, y: height * 0.45 + 20)],
+            [CGPoint(x: width/2 - 39, y: height * 0.45),
+             CGPoint(x: width/2 - 51, y: height * 0.45 + 12), 
+             CGPoint(x: width/2 - 39, y: height * 0.45 + 12), 
+             CGPoint(x: width/2 - 27, y: height * 0.45 + 12)],
             
             // Z piece on right edge
-            [CGPoint(x: width/2 - 80, y: height * 0.65), 
-             CGPoint(x: width/2 - 60, y: height * 0.65),
-             CGPoint(x: width/2 - 60, y: height * 0.65 + 20), 
-             CGPoint(x: width/2 - 40, y: height * 0.65 + 20)],
+            [CGPoint(x: width/2 - 51, y: height * 0.6), 
+             CGPoint(x: width/2 - 39, y: height * 0.6),
+             CGPoint(x: width/2 - 39, y: height * 0.6 + 12), 
+             CGPoint(x: width/2 - 27, y: height * 0.6 + 12)],
             
             // J piece on right edge
-            [CGPoint(x: width/2 - 50, y: height * 0.85), 
-             CGPoint(x: width/2 - 70, y: height * 0.85 + 20),
-             CGPoint(x: width/2 - 50, y: height * 0.85 + 20), 
-             CGPoint(x: width/2 - 30, y: height * 0.85 + 20)]
+            [CGPoint(x: width/2 - 32, y: height * 0.75), 
+             CGPoint(x: width/2 - 44, y: height * 0.75 + 12),
+             CGPoint(x: width/2 - 32, y: height * 0.75 + 12), 
+             CGPoint(x: width/2 - 20, y: height * 0.75 + 12)],
+             
+            // Additional S piece on right edge
+            [CGPoint(x: width/2 - 39, y: height * 0.85),
+             CGPoint(x: width/2 - 27, y: height * 0.85),
+             CGPoint(x: width/2 - 51, y: height * 0.85 + 12),
+             CGPoint(x: width/2 - 39, y: height * 0.85 + 12)]
         ]
         
         let allPositions = leftPositions + rightPositions
@@ -480,10 +492,10 @@ class GameScene: SKScene {
         nintendoLabel.zPosition = -13
         addChild(nintendoLabel)
         
-        // Game area background - semi-transparent dark overlay
+        // Game area background - solid black
         let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, width: boardWidth + 4, height: boardHeight + 4))
         gameAreaBackground.strokeColor = .clear
-        gameAreaBackground.fillColor = SKColor.black.withAlphaComponent(0.7) // Semi-transparent to show retro background
+        gameAreaBackground.fillColor = .black
         gameAreaBackground.zPosition = -1
         boardNode.addChild(gameAreaBackground)
         
@@ -528,6 +540,15 @@ class GameScene: SKScene {
         let scoreBoxLeft = -boardWidth/2 - 2
         let scoreBoxRight = boardWidth/2 - 49 - 50
         let scoreBoxWidth = scoreBoxRight - scoreBoxLeft
+        
+        // Score area background - solid black
+        let scoreBackground = SKShapeNode(rect: CGRect(x: scoreBoxLeft, y: -35, width: scoreBoxWidth, height: 80))
+        scoreBackground.strokeColor = .clear
+        scoreBackground.fillColor = .black
+        scoreBackground.position = CGPoint(x: 0, y: boardHeight/2 + 35)
+        scoreBackground.zPosition = -1
+        uiNode.addChild(scoreBackground)
+        
         let scoreBox = SKShapeNode(rect: CGRect(x: scoreBoxLeft, y: -35, width: scoreBoxWidth, height: 80))
         scoreBox.strokeColor = .white
         scoreBox.lineWidth = 2
@@ -550,6 +571,12 @@ class GameScene: SKScene {
         nextContainer.addChild(nextLabel)
         
         // Next piece box
+        let nextBackground = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 80))
+        nextBackground.strokeColor = .clear
+        nextBackground.fillColor = .black
+        nextBackground.zPosition = -1
+        nextContainer.addChild(nextBackground)
+        
         let nextBox = SKShapeNode(rect: CGRect(x: -50, y: -35, width: 100, height: 80))
         nextBox.strokeColor = .white
         nextBox.lineWidth = 2
