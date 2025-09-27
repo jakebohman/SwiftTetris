@@ -245,6 +245,7 @@ class GameScene: SKScene {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         backgroundColor = SKColor.black
         
+        setupRetroBackground()
         setupGameNodes()
         setupUI()
         setupSounds()
@@ -264,6 +265,174 @@ class GameScene: SKScene {
         nextPieceNode = SKNode()
         nextPieceNode.name = "nextPiece"
         uiNode.addChild(nextPieceNode)
+    }
+    
+    // Sets up the retro-style background with grid and decorative tetromino shapes
+    func setupRetroBackground() {
+        let screenWidth = self.size.width
+        let screenHeight = self.size.height
+        
+        // Create background node
+        let retroBackgroundNode = SKNode()
+        retroBackgroundNode.name = "retroBackground"
+        retroBackgroundNode.zPosition = -20
+        addChild(retroBackgroundNode)
+        
+        // Dark background
+        let darkBackground = SKShapeNode(rect: CGRect(x: -screenWidth/2, y: -screenHeight/2, width: screenWidth, height: screenHeight))
+        darkBackground.fillColor = SKColor(red: 0.1, green: 0.1, blue: 0.18, alpha: 1.0) // #1A1A2E
+        darkBackground.strokeColor = .clear
+        darkBackground.zPosition = -20
+        retroBackgroundNode.addChild(darkBackground)
+        
+        // Add grid pattern
+        createRetroGrid(in: retroBackgroundNode, width: screenWidth, height: screenHeight)
+        
+        // Add decorative tetromino shapes
+        createDecorativeTetrominoes(in: retroBackgroundNode, width: screenWidth, height: screenHeight)
+    }
+    
+    // Creates the grid pattern for the retro background
+    func createRetroGrid(in parent: SKNode, width: CGFloat, height: CGFloat) {
+        let gridColor = SKColor(red: 0.086, green: 0.129, blue: 0.243, alpha: 0.3) // #16213E with alpha
+        let cellSize: CGFloat = 40.0
+        
+        // Vertical lines
+        var x: CGFloat = -width/2
+        while x <= width/2 {
+            let verticalLine = SKShapeNode()
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: x, y: -height/2))
+            path.addLine(to: CGPoint(x: x, y: height/2))
+            verticalLine.path = path
+            verticalLine.strokeColor = gridColor
+            verticalLine.lineWidth = 1.0
+            verticalLine.zPosition = -19
+            parent.addChild(verticalLine)
+            x += cellSize
+        }
+        
+        // Horizontal lines
+        var y: CGFloat = -height/2
+        while y <= height/2 {
+            let horizontalLine = SKShapeNode()
+            let path = CGMutablePath()
+            path.move(to: CGPoint(x: -width/2, y: y))
+            path.addLine(to: CGPoint(x: width/2, y: y))
+            horizontalLine.path = path
+            horizontalLine.strokeColor = gridColor
+            horizontalLine.lineWidth = 1.0
+            horizontalLine.zPosition = -19
+            parent.addChild(horizontalLine)
+            y += cellSize
+        }
+    }
+    
+    // Creates decorative tetromino shapes scattered on the background
+    func createDecorativeTetrominoes(in parent: SKNode, width: CGFloat, height: CGFloat) {
+        let blockSize: CGFloat = 20.0
+        let alpha: CGFloat = 0.15
+        
+        // Tetromino colors with low alpha
+        let tetrominoColors = [
+            SKColor.cyan.withAlphaComponent(alpha),     // I piece
+            SKColor.yellow.withAlphaComponent(alpha),   // O piece  
+            SKColor.purple.withAlphaComponent(alpha),   // T piece
+            SKColor.green.withAlphaComponent(alpha),    // S piece
+            SKColor.red.withAlphaComponent(alpha),      // Z piece
+            SKColor.blue.withAlphaComponent(alpha),     // J piece
+            SKColor.orange.withAlphaComponent(alpha)    // L piece
+        ]
+        
+        // Calculate edge zones
+        let edgeMargin = width * 0.15 // 15% from each edge
+        
+        // Left edge positions - defining tetromino shapes
+        let leftPositions = [
+            // I piece on left edge (horizontal)
+            [CGPoint(x: -width/2 + 20, y: height * 0.1), 
+             CGPoint(x: -width/2 + 40, y: height * 0.1), 
+             CGPoint(x: -width/2 + 60, y: height * 0.1), 
+             CGPoint(x: -width/2 + 80, y: height * 0.1)],
+            
+            // O piece on left edge
+            [CGPoint(x: -width/2 + 30, y: height * 0.25), 
+             CGPoint(x: -width/2 + 50, y: height * 0.25),
+             CGPoint(x: -width/2 + 30, y: height * 0.25 + 20), 
+             CGPoint(x: -width/2 + 50, y: height * 0.25 + 20)],
+            
+            // T piece on left edge
+            [CGPoint(x: -width/2 + 60, y: height * 0.4),
+             CGPoint(x: -width/2 + 40, y: height * 0.4 + 20), 
+             CGPoint(x: -width/2 + 60, y: height * 0.4 + 20), 
+             CGPoint(x: -width/2 + 80, y: height * 0.4 + 20)],
+            
+            // S piece on left edge
+            [CGPoint(x: -width/2 + 20, y: height * 0.6), 
+             CGPoint(x: -width/2 + 40, y: height * 0.6),
+             CGPoint(x: -width/2 + 40, y: height * 0.6 + 20), 
+             CGPoint(x: -width/2 + 60, y: height * 0.6 + 20)],
+            
+            // L piece on left edge
+            [CGPoint(x: -width/2 + 30, y: height * 0.8), 
+             CGPoint(x: -width/2 + 30, y: height * 0.8 + 20),
+             CGPoint(x: -width/2 + 30, y: height * 0.8 + 40), 
+             CGPoint(x: -width/2 + 50, y: height * 0.8 + 40)]
+        ]
+        
+        // Right edge positions
+        let rightPositions = [
+            // I piece on right edge (horizontal)
+            [CGPoint(x: width/2 - 100, y: height * 0.15), 
+             CGPoint(x: width/2 - 80, y: height * 0.15),
+             CGPoint(x: width/2 - 60, y: height * 0.15), 
+             CGPoint(x: width/2 - 40, y: height * 0.15)],
+            
+            // O piece on right edge
+            [CGPoint(x: width/2 - 70, y: height * 0.3), 
+             CGPoint(x: width/2 - 50, y: height * 0.3),
+             CGPoint(x: width/2 - 70, y: height * 0.3 + 20), 
+             CGPoint(x: width/2 - 50, y: height * 0.3 + 20)],
+            
+            // T piece on right edge
+            [CGPoint(x: width/2 - 60, y: height * 0.45),
+             CGPoint(x: width/2 - 80, y: height * 0.45 + 20), 
+             CGPoint(x: width/2 - 60, y: height * 0.45 + 20), 
+             CGPoint(x: width/2 - 40, y: height * 0.45 + 20)],
+            
+            // Z piece on right edge
+            [CGPoint(x: width/2 - 80, y: height * 0.65), 
+             CGPoint(x: width/2 - 60, y: height * 0.65),
+             CGPoint(x: width/2 - 60, y: height * 0.65 + 20), 
+             CGPoint(x: width/2 - 40, y: height * 0.65 + 20)],
+            
+            // J piece on right edge
+            [CGPoint(x: width/2 - 50, y: height * 0.85), 
+             CGPoint(x: width/2 - 70, y: height * 0.85 + 20),
+             CGPoint(x: width/2 - 50, y: height * 0.85 + 20), 
+             CGPoint(x: width/2 - 30, y: height * 0.85 + 20)]
+        ]
+        
+        let allPositions = leftPositions + rightPositions
+        
+        // Draw the tetromino shapes
+        for (shapeIndex, positions) in allPositions.enumerated() {
+            let color = tetrominoColors[shapeIndex % tetrominoColors.count]
+            
+            for position in positions {
+                // Check bounds
+                if position.x >= -width/2 && position.y >= -height/2 && 
+                   position.x < width/2 - blockSize && position.y < height/2 - blockSize {
+                    
+                    let block = SKShapeNode(rect: CGRect(x: 0, y: 0, width: blockSize, height: blockSize))
+                    block.fillColor = color
+                    block.strokeColor = .clear
+                    block.position = position
+                    block.zPosition = -18
+                    parent.addChild(block)
+                }
+            }
+        }
     }
     
     // Sets up the UI elements and NES controller background
@@ -311,10 +480,10 @@ class GameScene: SKScene {
         nintendoLabel.zPosition = -13
         addChild(nintendoLabel)
         
-        // Game area background - solid black
+        // Game area background - semi-transparent dark overlay
         let gameAreaBackground = SKShapeNode(rect: CGRect(x: -boardWidth/2 - 2, y: -boardHeight/2 - 2, width: boardWidth + 4, height: boardHeight + 4))
         gameAreaBackground.strokeColor = .clear
-        gameAreaBackground.fillColor = .black
+        gameAreaBackground.fillColor = SKColor.black.withAlphaComponent(0.7) // Semi-transparent to show retro background
         gameAreaBackground.zPosition = -1
         boardNode.addChild(gameAreaBackground)
         
