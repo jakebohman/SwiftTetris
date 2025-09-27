@@ -7,6 +7,7 @@ let columns = 10
 let rows = 20
 let blockSize: CGFloat = 32.0
 let spawnRow = 21  // Spawn above visible area
+let highScoreKey = "TetrisHighScore"
 
 // Game States
 enum GameState {
@@ -189,6 +190,7 @@ class GameScene: SKScene {
     private var score = 0
     private var level = 0
     private var linesCleared = 0
+    private var highScore = 0
     
     // Rendering
     private var boardNode: SKNode!
@@ -244,6 +246,9 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         backgroundColor = SKColor.black
+        
+        // Load high score from UserDefaults
+        loadHighScore()
         
         setupRetroBackground()
         setupGameNodes()
@@ -937,6 +942,26 @@ class GameScene: SKScene {
         gameOverSoundAction = SKAction.run { }
     }
     
+    // MARK: - High Score Management
+    
+    // Load high score from UserDefaults
+    func loadHighScore() {
+        highScore = UserDefaults.standard.integer(forKey: highScoreKey)
+    }
+    
+    // Save high score to UserDefaults
+    func saveHighScore() {
+        UserDefaults.standard.set(highScore, forKey: highScoreKey)
+    }
+    
+    // Update high score if current score is higher
+    func updateHighScore() {
+        if score > highScore {
+            highScore = score
+            saveHighScore()
+        }
+    }
+    
     // Show main menu (Title and Play Game button)
     func showMainMenu() {
         gameState = .menu
@@ -965,9 +990,9 @@ class GameScene: SKScene {
         // Play Game button
         createMenuButton(text: "PLAY GAME", name: "playButton", position: CGPoint(x: 0, y: 20), fontSize: 28, color: .yellow)
         
-        // High score display (placeholder for now)
+        // High score display
         let highScoreLabel = SKLabelNode(fontNamed: "Helvetica")
-        highScoreLabel.text = "HIGH SCORE: 0"
+        highScoreLabel.text = "HIGH SCORE: \(highScore)"
         highScoreLabel.fontSize = 16
         highScoreLabel.fontColor = .white
         highScoreLabel.position = CGPoint(x: 0, y: -40)
@@ -1018,6 +1043,8 @@ class GameScene: SKScene {
         childNode(withName: "finalScore")?.removeFromParent()
         childNode(withName: "finalLevel")?.removeFromParent()
         childNode(withName: "finalLines")?.removeFromParent()
+        childNode(withName: "newHighScore")?.removeFromParent()
+        childNode(withName: "gameOverHighScore")?.removeFromParent()
         childNode(withName: "restartButton")?.removeFromParent()
         childNode(withName: "restart")?.removeFromParent()
     }
@@ -1285,6 +1312,9 @@ class GameScene: SKScene {
         gameState = .gameOver
         run(gameOverSoundAction)
         
+        // Update high score before displaying
+        updateHighScore()
+        
         // Clear all tetrominos from the game area
         clearBoard()
         drawBoard()
@@ -1304,6 +1334,33 @@ class GameScene: SKScene {
         finalScoreLabel.position = CGPoint(x: 0, y: 80)
         finalScoreLabel.name = "finalScore"
         addChild(finalScoreLabel)
+        
+        // Show "NEW HIGH SCORE!" if applicable
+        if score == highScore && score > 0 {
+            let newHighScoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+            newHighScoreLabel.text = "NEW HIGH SCORE!"
+            newHighScoreLabel.fontSize = 20
+            newHighScoreLabel.fontColor = .yellow
+            newHighScoreLabel.position = CGPoint(x: 0, y: 100)
+            newHighScoreLabel.name = "newHighScore"
+            addChild(newHighScoreLabel)
+            
+            // Add celebration animation
+            let celebrate = SKAction.sequence([
+                SKAction.scale(to: 1.2, duration: 0.3),
+                SKAction.scale(to: 1.0, duration: 0.3)
+            ])
+            newHighScoreLabel.run(SKAction.repeatForever(celebrate))
+        } else {
+            // Show current high score if not a new record
+            let highScoreLabel = SKLabelNode(fontNamed: "Helvetica")
+            highScoreLabel.text = "HIGH SCORE: \(highScore)"
+            highScoreLabel.fontSize = 18
+            highScoreLabel.fontColor = .yellow
+            highScoreLabel.position = CGPoint(x: 0, y: 100)
+            highScoreLabel.name = "gameOverHighScore"
+            addChild(highScoreLabel)
+        }
         
         let levelLabel = SKLabelNode(fontNamed: "Helvetica")
         levelLabel.text = "LEVEL: \(level)"
