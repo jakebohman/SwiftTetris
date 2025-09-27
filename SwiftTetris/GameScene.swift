@@ -1323,7 +1323,7 @@ class GameScene: SKScene {
         gameOverLabel.text = "GAME OVER"
         gameOverLabel.fontSize = 36
         gameOverLabel.fontColor = .red
-        gameOverLabel.position = CGPoint(x: 0, y: 120)
+        gameOverLabel.position = CGPoint(x: 0, y: 150)
         gameOverLabel.name = "gameOver"
         addChild(gameOverLabel)
         
@@ -1331,7 +1331,7 @@ class GameScene: SKScene {
         finalScoreLabel.text = "FINAL SCORE: \(score)"
         finalScoreLabel.fontSize = 24
         finalScoreLabel.fontColor = .white
-        finalScoreLabel.position = CGPoint(x: 0, y: 80)
+        finalScoreLabel.position = CGPoint(x: 0, y: 100)
         finalScoreLabel.name = "finalScore"
         addChild(finalScoreLabel)
         
@@ -1341,7 +1341,7 @@ class GameScene: SKScene {
             newHighScoreLabel.text = "NEW HIGH SCORE!"
             newHighScoreLabel.fontSize = 20
             newHighScoreLabel.fontColor = .yellow
-            newHighScoreLabel.position = CGPoint(x: 0, y: 100)
+            newHighScoreLabel.position = CGPoint(x: 0, y: 60)
             newHighScoreLabel.name = "newHighScore"
             addChild(newHighScoreLabel)
             
@@ -1357,7 +1357,7 @@ class GameScene: SKScene {
             highScoreLabel.text = "HIGH SCORE: \(highScore)"
             highScoreLabel.fontSize = 18
             highScoreLabel.fontColor = .yellow
-            highScoreLabel.position = CGPoint(x: 0, y: 100)
+            highScoreLabel.position = CGPoint(x: 0, y: 60)
             highScoreLabel.name = "gameOverHighScore"
             addChild(highScoreLabel)
         }
