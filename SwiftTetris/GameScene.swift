@@ -1019,7 +1019,6 @@ class GameScene: SKScene {
         childNode(withName: "finalLevel")?.removeFromParent()
         childNode(withName: "finalLines")?.removeFromParent()
         childNode(withName: "restartButton")?.removeFromParent()
-        childNode(withName: "mainMenuButton")?.removeFromParent()
         childNode(withName: "restart")?.removeFromParent()
     }
 
@@ -1324,9 +1323,6 @@ class GameScene: SKScene {
         
         // Play Again button
         createMenuButton(text: "PLAY AGAIN", name: "restartButton", position: CGPoint(x: 0, y: -10), fontSize: 24, color: .green)
-        
-        // Main Menu button
-        createMenuButton(text: "MAIN MENU", name: "mainMenuButton", position: CGPoint(x: 0, y: -50), fontSize: 24, color: .cyan)
     }
     
     // Restart the game from game over state
@@ -1673,11 +1669,9 @@ class GameScene: SKScene {
                 startGame()
             }
         case .gameOver:
-            // Check which button was tapped in game over state
+            // Check if restart button was tapped
             if let restartButton = childNode(withName: "restartButton"), restartButton.contains(location) {
                 restartGame()
-            } else if let mainMenuButton = childNode(withName: "mainMenuButton"), mainMenuButton.contains(location) {
-                showMainMenu()
             }
         case .playing:
             // Check if tap is on any control button
