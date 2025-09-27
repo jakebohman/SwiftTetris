@@ -1366,7 +1366,7 @@ class GameScene: SKScene {
         levelLabel.text = "LEVEL: \(level)"
         levelLabel.fontSize = 18
         levelLabel.fontColor = .lightGray
-        levelLabel.position = CGPoint(x: 0, y: 55)
+        levelLabel.position = CGPoint(x: 0, y: 15)
         levelLabel.name = "finalLevel"
         addChild(levelLabel)
         
@@ -1374,12 +1374,12 @@ class GameScene: SKScene {
         linesLabel.text = "LINES: \(linesCleared)"
         linesLabel.fontSize = 18
         linesLabel.fontColor = .lightGray
-        linesLabel.position = CGPoint(x: 0, y: 35)
+        linesLabel.position = CGPoint(x: 0, y: -5)
         linesLabel.name = "finalLines"
         addChild(linesLabel)
         
         // Play Again button
-        createMenuButton(text: "PLAY AGAIN", name: "restartButton", position: CGPoint(x: 0, y: -10), fontSize: 24, color: .green)
+        createMenuButton(text: "PLAY AGAIN", name: "restartButton", position: CGPoint(x: 0, y: -50), fontSize: 24, color: .green)
     }
     
     // Restart the game from game over state
